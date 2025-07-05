@@ -81,6 +81,11 @@ export class WindowManager {
     this.updateViewLayout()
     await this.loadViewContents()
     this.setupViewEvents()
+    
+    // 延迟创建默认标签页，确保所有组件都已初始化
+    setTimeout(() => {
+      this.createDefaultTab()
+    }, 1000)
   }
 
   private async loadViewContents(): Promise<void> {
@@ -182,6 +187,33 @@ export class WindowManager {
   refreshSideView(): void {
     if (this.sideView) {
       this.sideView.webContents.reload()
+    }
+  }
+
+  private async createDefaultTab(): Promise<void> {
+    try {
+      if (!this.tabManager) {
+        console.warn('TabManager 未初始化，无法创建默认标签页')
+        return
+      }
+
+      // DeepSeek网站配置
+      const deepseekWebsite = {
+        id: 'deepseek',
+        name: 'DeepSeek',
+        url: 'https://chat.deepseek.com/',
+        description: '深度求索AI对话助手',
+        icon: '🤖',
+        category: 'domestic',
+        tags: ['对话', '编程', '推理'],
+        isActive: true
+      }
+
+      // 创建默认标签页
+      const defaultTab = await this.tabManager.createTab(deepseekWebsite)
+      console.log('默认标签页已创建:', defaultTab.title)
+    } catch (error) {
+      console.error('创建默认标签页失败:', error)
     }
   }
 
