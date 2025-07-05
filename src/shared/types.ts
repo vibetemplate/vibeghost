@@ -21,18 +21,18 @@ export interface SiteConfig {
   icon?: string;
 }
 
-// 提示词节点接口
-export interface PromptNode {
-  id: string;
-  title: string;
-  prompt?: string;
-  children?: PromptNode[];
-  category?: string;
-  tags?: string[];
-  description?: string;
-  usageCount?: number;
-  createdAt?: string;
-  updatedAt?: string;
+// 新的提示词库结构定义
+export interface Chapter {
+  id: string
+  category: string
+  name: string
+  prompt: string
+}
+
+export interface Project {
+  id: string
+  name: string
+  chapters: Chapter[]
 }
 
 // IPC通信事件类型

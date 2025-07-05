@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron'
-import { IPCEvents, ProxyConfig, SiteConfig, PromptNode, InjectionResult } from '../shared/types'
+import { ProxyConfig, SiteConfig, InjectionResult } from '../shared/types'
 
 // 定义暴露给渲染进程的API
 const electronAPI = {
@@ -7,7 +7,7 @@ const electronAPI = {
   injectPrompt: (prompt: string): Promise<InjectionResult> => 
     ipcRenderer.invoke('inject-prompt', prompt),
   
-  getPrompts: (): Promise<PromptNode[]> => 
+  getPrompts: (): Promise<any> => 
     ipcRenderer.invoke('get-prompts'),
   
   // 代理配置相关
@@ -56,7 +56,18 @@ const electronAPI = {
     ipcRenderer.send('toggle-sidebar-devtools'),
   
   reloadSidebar: (): void => 
-    ipcRenderer.send('reload-sidebar')
+    ipcRenderer.send('reload-sidebar'),
+
+  // 模态框相关
+  showModal: (type: string, props?: any): void => {
+    ipcRenderer.send('show-modal', type, props)
+  },
+  hideModal: (): void => {
+    ipcRenderer.send('hide-modal')
+  },
+  onShowModal: (callback: (type: string, props: any) => void) => {
+    ipcRenderer.on('show-modal-in-view', (_, type, props) => callback(type, props))
+  },
 }
 
 // 暴露API到渲染进程

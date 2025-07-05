@@ -1,0 +1,56 @@
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* 防止出现滚动条 */
+  /* 确保透明背景生效 */
+  background-color: transparent; 
+}
+
+.modal-app-container {
+  /* 如果未来需要为整个模态框应用添加背景或特定样式，可以在这里写 */
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* 强制 antd modal 居中 */
+.ant-modal-wrap {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.ant-modal {
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  transform: none !important;
+  margin: 0 !important;
+}
+
+.proxy-modal-wrap .ant-modal {
+  top: 0 !important;
+  transform: translateY(0) !important;
+}
+
+.proxy-modal-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  width: 100vw;
+}
+
+.modal-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+} 

@@ -5,6 +5,7 @@ import { ProxyManager } from './proxy-manager'
 import { ConfigManager } from './config-manager'
 import { InjectionManager } from './injection-manager'
 import { PromptManager } from './prompt-manager'
+import { ModalManager } from './modal-manager'
 
 class MainApp {
   private windowManager: WindowManager
@@ -12,6 +13,7 @@ class MainApp {
   private configManager: ConfigManager
   private injectionManager: InjectionManager
   private promptManager: PromptManager
+  private modalManager: ModalManager | null = null
 
   constructor() {
     this.windowManager = new WindowManager()
@@ -64,7 +66,10 @@ class MainApp {
       const mainWindow = await this.windowManager.createMainWindow()
       
       // 设置双视图布局
-      await this.windowManager.setupDualViews(mainWindow)
+      await this.windowManager.setupViews(mainWindow)
+
+      // 初始化模态管理器
+      this.modalManager = new ModalManager(mainWindow)
 
       console.log('主窗口创建成功')
     } catch (error) {

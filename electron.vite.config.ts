@@ -42,9 +42,22 @@ export default defineConfig({
       rollupOptions: {
         input: {
           main: resolve(__dirname, 'src/renderer/index.html'),
-          sidebar: resolve(__dirname, 'src/renderer/sidebar.html')
+          sidebar: resolve(__dirname, 'src/renderer/sidebar.html'),
+          modal: resolve(__dirname, 'src/renderer/src/modal/index.html')
         }
       }
+    }
+  },
+  modal: {
+    root: 'src/modal',
+    plugins: [react()],
+    build: {
+        outDir: 'dist/modal',
+        rollupOptions: {
+            input: {
+                main: resolve(__dirname, 'src/modal/index.html')
+            }
+        }
     }
   }
 })
