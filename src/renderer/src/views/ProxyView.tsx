@@ -1,14 +1,16 @@
-import React, { useState, useEffect } from 'react'
-import { Form, Input, InputNumber, Select, Switch, Button, Spin, message } from 'antd'
-import { ProxyConfig } from '../../../shared/types'
+import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react'
+import { Form, Input, InputNumber, Select, Switch, Spin, message } from 'antd'
 import './ProxyView.css'
 
 const { Option } = Select
 
-const ProxyView: React.FC = () => {
+export interface ProxyViewRef {
+  save: () => Promise<void>
+}
+
+const ProxyView = forwardRef<ProxyViewRef>((props, ref) => {
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
 
   useEffect(() => {
     const fetchProxyConfig = async () => {
@@ -32,16 +34,26 @@ const ProxyView: React.FC = () => {
     fetchProxyConfig()
   }, [form])
 
-  const onFinish = async (values: ProxyConfig) => {
+  const saveProxyConfig = async () => {
     try {
-      setSaving(true)
+      const values = await form.validateFields()
       await window.electronAPI.updateProxy(values)
+    } catch (error) {
+      console.error('Failed to save proxy config:', error)
+      throw error
+    }
+  }
+
+  useImperativeHandle(ref, () => ({
+    save: saveProxyConfig
+  }))
+
+  const onFinish = async () => {
+    try {
+      await saveProxyConfig()
       message.success('代理配置已保存')
     } catch (error) {
       message.error('保存代理配置失败')
-      console.error('Failed to save proxy config:', error)
-    } finally {
-      setSaving(false)
     }
   }
 
@@ -76,14 +88,11 @@ const ProxyView: React.FC = () => {
         <Form.Item name="port" label="端口" rules={[{ required: true, message: '请输入端口号' }]}>
           <InputNumber style={{ width: '100%' }} min={1} max={65535} />
         </Form.Item>
-        <Form.Item>
-          <Button type="primary" htmlType="submit" loading={saving} block>
-            保存配置
-          </Button>
-        </Form.Item>
       </Form>
     </div>
   )
-}
+})
+
+ProxyView.displayName = 'ProxyView'
 
 export default ProxyView 

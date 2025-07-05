@@ -20,15 +20,16 @@ export class ModalManager {
     const parentBounds = this.parentWindow.getBounds()
     this.modalWindow = new BrowserWindow({
       parent: this.parentWindow,
-      width: 500,
-      height: 400,
-      x: parentBounds.x + Math.round((parentBounds.width - 500) / 2),
-      y: parentBounds.y + Math.round((parentBounds.height - 400) / 2),
-      modal: true,
+      width: parentBounds.width,
+      height: parentBounds.height,
+      x: parentBounds.x,
+      y: parentBounds.y,
+      modal: false,
       frame: false,
       transparent: true,
       show: false,
       resizable: false,
+      alwaysOnTop: true,
       webPreferences: {
         preload: join(__dirname, '../preload/preload.js'),
         contextIsolation: true,

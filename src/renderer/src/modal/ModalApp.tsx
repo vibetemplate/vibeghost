@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react'
-import { Modal, Input, Form } from 'antd'
-import ProxyView from '../views/ProxyView'
+import React, { useState, useEffect, useRef } from 'react'
+import { Input, Button, message } from 'antd'
+import ProxyView, { ProxyViewRef } from '../views/ProxyView'
 import './ModalApp.css'
 
 type ModalType = 'proxy' | 'navigate' | null
@@ -8,6 +8,8 @@ type ModalType = 'proxy' | 'navigate' | null
 const ModalApp: React.FC = () => {
   const [modalType, setModalType] = useState<ModalType>(null)
   const [navigateUrl, setNavigateUrl] = useState('')
+  const [saving, setSaving] = useState(false)
+  const proxyViewRef = useRef<ProxyViewRef>(null)
 
   useEffect(() => {
     const handleShowModal = (type: string, props: any) => {
@@ -38,17 +40,36 @@ const ModalApp: React.FC = () => {
     handleClose()
   }
 
+  const handleProxySave = async () => {
+    if (!proxyViewRef.current) return
+    
+    try {
+      setSaving(true)
+      await proxyViewRef.current.save()
+      message.success('代理配置已保存')
+      handleClose()
+    } catch (error) {
+      message.error('保存代理配置失败')
+      console.error('Failed to save proxy config:', error)
+    } finally {
+      setSaving(false)
+    }
+  }
+
   const renderModalContent = () => {
     switch (modalType) {
       case 'proxy':
-        return <ProxyView />
+        return <ProxyView ref={proxyViewRef} />
       case 'navigate':
         return (
+          <div style={{ padding: '24px' }}>
             <Input 
               placeholder="请输入完整的 URL，例如 https://www.google.com" 
               onChange={(e) => setNavigateUrl(e.target.value)}
               onPressEnter={handleNavigate}
+              size="large"
             />
+          </div>
         )
       default:
         return null
@@ -66,23 +87,48 @@ const ModalApp: React.FC = () => {
     }
   }
 
+  const getModalFooter = () => {
+    if (modalType === 'proxy') {
+      return [
+        <Button key="cancel" onClick={handleClose}>
+          取消
+        </Button>,
+        <Button key="save" type="primary" onClick={handleProxySave} loading={saving}>
+          保存配置
+        </Button>
+      ]
+    }
+    if (modalType === 'navigate') {
+      return [
+        <Button key="cancel" onClick={handleClose}>
+          取消
+        </Button>,
+        <Button key="ok" type="primary" onClick={handleNavigate}>
+          跳转
+        </Button>
+      ]
+    }
+    return null
+  }
+
+  if (!modalType) {
+    return null
+  }
+
   return (
     <div className="modal-container">
-      <Modal
-        title={getModalTitle()}
-        open={!!modalType}
-        onCancel={handleClose}
-        onOk={modalType === 'navigate' ? handleNavigate : undefined}
-        okText={modalType === 'navigate' ? '跳转' : '确定'}
-        cancelText="取消"
-        destroyOnClose
-        maskClosable={true}
-        footer={modalType === 'navigate' ? undefined : null}
-        centered
-        width={520}
-      >
-        {renderModalContent()}
-      </Modal>
+      <div className="modal-content">
+        <div className="modal-header">
+          <h3 className="modal-title">{getModalTitle()}</h3>
+          <button className="modal-close" onClick={handleClose}>×</button>
+        </div>
+        <div className="modal-body">
+          {renderModalContent()}
+        </div>
+        <div className="modal-footer">
+          {getModalFooter()}
+        </div>
+      </div>
     </div>
   )
 }

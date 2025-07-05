@@ -5,52 +5,82 @@ body,
   width: 100%;
   margin: 0;
   padding: 0;
-  overflow: hidden; /* 防止出现滚动条 */
-  /* 确保透明背景生效 */
-  background-color: transparent; 
-}
-
-.modal-app-container {
-  /* 如果未来需要为整个模态框应用添加背景或特定样式，可以在这里写 */
-  padding: 0;
-  margin: 0;
-  width: 100%;
-  height: 100vh;
   overflow: hidden;
-}
-
-/* 强制 antd modal 居中 */
-.ant-modal-wrap {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-}
-
-.ant-modal {
-  position: relative !important;
-  top: auto !important;
-  left: auto !important;
-  transform: none !important;
-  margin: 0 !important;
-}
-
-.proxy-modal-wrap .ant-modal {
-  top: 0 !important;
-  transform: translateY(0) !important;
-}
-
-.proxy-modal-wrap {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  width: 100vw;
+  background-color: transparent; 
 }
 
 .modal-container {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100%;
+  height: 100vh;
+  width: 100vw;
+  padding: 20px;
+  box-sizing: border-box;
+  background-color: rgba(0, 0, 0, 0.45);
+}
+
+.modal-content {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  max-width: 600px;
   width: 100%;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  border-bottom: 1px solid #f0f0f0;
+  background: #fafafa;
+}
+
+.modal-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: #000000d9;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #00000073;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+.modal-close:hover {
+  background: #0000000a;
+  color: #000000d9;
+}
+
+.modal-body {
+  flex: 1;
+  padding: 0;
+  overflow-y: auto;
+}
+
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #f0f0f0;
+  text-align: right;
+  background: #fafafa;
+}
+
+.modal-footer .ant-btn {
+  margin-left: 8px;
 } 
