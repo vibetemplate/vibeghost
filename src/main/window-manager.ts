@@ -1,6 +1,7 @@
 import { BrowserWindow, BrowserView, screen } from 'electron'
 import { join } from 'path'
 import { AppConfig } from '../shared/types'
+import { app } from 'electron'
 
 export class WindowManager {
   private mainWindow: BrowserWindow | null = null
@@ -114,16 +115,18 @@ export class WindowManager {
 
     try {
       // 加载侧边栏内容（提示词库应用）
-      if (process.env.NODE_ENV === 'development') {
-        // 使用应急调试面板
-        await this.sideView.webContents.loadFile(join(__dirname, '..', '..', 'emergency-debug.html'))
+      if (!app.isPackaged && process.env['ELECTRON_RENDERER_URL']) {
+        // 开发模式：从Vite开发服务器加载侧边栏
+        await this.sideView.webContents.loadURL(`${process.env['ELECTRON_RENDERER_URL']}/sidebar.html`)
       } else {
+        // 生产模式：加载打包后的侧边栏文件
         await this.sideView.webContents.loadFile(
           join(__dirname, '../renderer/sidebar.html')
         )
       }
 
-      // 加载默认AI网站（左侧主视图）
+      // 加载主视图内容 (AI网站)
+      // 主视图始终加载外部网站，这里加载一个默认的启动页
       await this.mainView.webContents.loadURL('https://chat.deepseek.com')
     } catch (error) {
       console.error('加载视图内容失败:', error)
