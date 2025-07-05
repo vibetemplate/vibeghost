@@ -215,6 +215,44 @@ class MainApp {
         sideView.webContents.reload()
       }
     })
+
+    // 清除缓存
+    ipcMain.handle('clear-cache', async () => {
+      try {
+        const session = require('electron').session
+        
+        // 清除HTTP缓存和存储数据
+        await session.defaultSession.clearCache()
+        await session.defaultSession.clearStorageData({
+          storages: ['appcache', 'cookies', 'filesystem', 'indexdb', 'localstorage', 'shadercache', 'websql', 'serviceworkers', 'cachestorage']
+        })
+
+        // 同时清除所有标签页的缓存
+        const tabManager = this.windowManager.getTabManager()
+        if (tabManager) {
+          const tabs = tabManager.getAllTabs()
+          for (const tab of tabs) {
+            // 通过标签页ID获取对应的BrowserView并清除缓存
+            // 注意：这里需要TabManager提供获取BrowserView的方法
+            // 暂时先清除session缓存，后续可以优化
+            await session.defaultSession.clearCache()
+          }
+        }
+
+        // 清除侧边栏缓存
+        const sideView = this.windowManager.getSideView()
+        if (sideView) {
+          await sideView.webContents.session.clearCache()
+          sideView.webContents.reload()
+        }
+
+        console.log('缓存清除成功')
+        return { success: true }
+      } catch (error: any) {
+        console.error('清除缓存失败:', error)
+        return { success: false, error: error.message }
+      }
+    })
   }
 }
 

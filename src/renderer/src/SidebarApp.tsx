@@ -18,11 +18,19 @@ const SidebarApp: React.FC = () => {
     window.location.reload()
   }
 
-  const handleAction = (action: 'navigate' | 'clearCache' | 'proxy') => {
+  const handleAction = async (action: 'navigate' | 'clearCache' | 'proxy') => {
     switch (action) {
       case 'clearCache':
-        handleRefresh();
-        Modal.success({ title: '缓存已清除', content: '页面已刷新以获取最新数据。' });
+        try {
+          const result = await window.electronAPI.clearCache();
+          if (result.success) {
+            Modal.success({ title: '缓存已清除', content: '应用缓存已成功清除，包括网站数据、Cookie等。' });
+          } else {
+            Modal.error({ title: '清除缓存失败', content: result.error || '未知错误' });
+          }
+        } catch (error) {
+          Modal.error({ title: '清除缓存失败', content: '无法连接到主进程' });
+        }
         break;
       case 'navigate':
         window.electronAPI.showModal('navigate')

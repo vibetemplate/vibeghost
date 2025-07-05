@@ -87,6 +87,10 @@ const electronAPI = {
   reloadSidebar: (): void => 
     ipcRenderer.send('reload-sidebar'),
 
+  // 缓存管理
+  clearCache: (): Promise<{ success: boolean; error?: string }> =>
+    ipcRenderer.invoke('clear-cache'),
+
   // 模态框相关
   showModal: (type: string, props?: any): void => {
     ipcRenderer.send('show-modal', type, props)
