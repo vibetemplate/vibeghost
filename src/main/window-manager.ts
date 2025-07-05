@@ -105,12 +105,12 @@ export class WindowManager {
 
     const contentBounds = this.mainWindow.getContentBounds()
 
-    // 更新侧边栏布局 - 为TabHostApp预留顶部空间
+    // 更新侧边栏布局 - 让侧边栏与TabHostApp并列显示
     this.sideView.setBounds({
       x: contentBounds.width - this.sidebarWidth,
-      y: this.tabBarHeight, // 从标签栏高度开始，不覆盖TabHostApp
+      y: 0, // 从窗口顶部开始，与TabHostApp并列
       width: this.sidebarWidth,
-      height: contentBounds.height - this.tabBarHeight
+      height: contentBounds.height
     })
 
     // 更新标签页管理器布局

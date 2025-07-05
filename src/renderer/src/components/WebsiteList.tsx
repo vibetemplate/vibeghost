@@ -32,14 +32,6 @@ const WebsiteList: React.FC<WebsiteListProps> = ({
   if (websites.length === 0) {
     return (
       <div style={{ marginBottom: '16px' }}>
-        <div style={{ 
-          fontSize: '14px', 
-          fontWeight: 500, 
-          marginBottom: '8px',
-          color: '#000000d9'
-        }}>
-          随书资源v1.0(网站)
-        </div>
         <Empty 
           description="该分类下暂无网站" 
           style={{ 
@@ -54,15 +46,6 @@ const WebsiteList: React.FC<WebsiteListProps> = ({
 
   return (
     <div style={{ marginBottom: '16px' }}>
-      <div style={{ 
-        fontSize: '14px', 
-        fontWeight: 500, 
-        marginBottom: '8px',
-        color: '#000000d9'
-      }}>
-        随书资源v1.0(网站)
-      </div>
-      
       <div className="website-list-container">
         {websites.map(website => {
           const tabCount = getWebsiteTabCount(website.id)

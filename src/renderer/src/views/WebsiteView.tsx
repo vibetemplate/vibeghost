@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { Divider, message, Spin } from 'antd'
+import { Divider, message, Spin, Button } from 'antd'
+import { ReloadOutlined } from '@ant-design/icons'
 import WebsiteSelector from '../components/WebsiteSelector'
 import WebsiteList from '../components/WebsiteList'
 import { WebsiteCategory, WebsiteInfo, AITab } from '../../../shared/types'
@@ -116,6 +117,10 @@ const WebsiteView: React.FC = () => {
     return category ? category.websites.filter(w => w.isActive) : []
   }
 
+  const handleRefresh = () => {
+    window.location.reload()
+  }
+
   if (loading) {
     return (
       <div style={{ 
@@ -130,14 +135,26 @@ const WebsiteView: React.FC = () => {
   }
 
   return (
-    <div style={{ padding: '16px' }}>
+    <div style={{ padding: '0 16px 16px 16px' }}>
       <div style={{ 
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
         fontSize: '16px', 
         fontWeight: 'bold', 
         marginBottom: '16px',
-        color: '#000000d9'
+        color: '#000000d9',
+        padding: '16px 0 0 0'
       }}>
-        功能区
+        <span>功能区</span>
+        <Button 
+          type="text" 
+          size="small" 
+          icon={<ReloadOutlined />}
+          onClick={handleRefresh}
+          style={{ fontSize: '12px' }}
+          title="刷新侧边栏"
+        />
       </div>
       
       <WebsiteSelector

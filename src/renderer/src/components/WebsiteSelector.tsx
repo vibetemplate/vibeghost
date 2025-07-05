@@ -46,14 +46,6 @@ const WebsiteSelector: React.FC<WebsiteSelectorProps> = ({
 
   return (
     <div style={{ marginBottom: '16px' }}>
-      <div style={{ 
-        fontSize: '14px', 
-        fontWeight: 500, 
-        marginBottom: '8px',
-        color: '#000000d9'
-      }}>
-        随书资源v1.0(分类)
-      </div>
       <Select
         value={currentCategory}
         onChange={handleCategoryChange}
