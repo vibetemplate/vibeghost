@@ -3,8 +3,8 @@
   align-items: center;
   background: #ffffff;
   border-bottom: 1px solid #e8e8e8;
-  padding: 8px 12px;
-  min-height: 40px;
+  padding: 4px 12px;
+  min-height: 32px;
   user-select: none;
   position: relative;
   z-index: 10001; /* 确保显示在最顶层 */

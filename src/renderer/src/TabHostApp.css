@@ -6,7 +6,7 @@
   height: auto !important;
   background: #ffffff !important;
   border-bottom: 1px solid #e8e8e8 !important;
-  z-index: 999999 !important; /* 超高z-index确保显示在所有内容之上 */
+  z-index: 2147483647 !important; /* 最高z-index确保显示在所有内容之上 */
   display: flex !important;
   flex-direction: column !important;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
@@ -29,7 +29,7 @@
 .tab-host-app .browser-toolbar {
   border-bottom: 1px solid #e8e8e8 !important;
   flex-shrink: 0 !important;
-  min-height: 40px !important;
+  min-height: 32px !important;
   display: flex !important;
   visibility: visible !important;
   opacity: 1 !important;

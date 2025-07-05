@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VibeGhost - AI提示词助手</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 60px 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .logo {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #fff, #f0f8ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        .title {
+            font-size: 3rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 40px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .feature-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #2d3748;
+        }
+
+        .feature-desc {
+            color: #4a5568;
+            line-height: 1.6;
+            font-size: 1rem;
+        }
+
+        .quick-links {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .quick-links-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 30px;
+            text-align: center;
+            color: #2d3748;
+        }
+
+        .links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .link-button {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .link-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            text-decoration: none;
+            color: white;
+        }
+
+        .link-icon {
+            font-size: 1.5rem;
+            margin-right: 12px;
+        }
+
+        .link-text {
+            font-weight: 500;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 60px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .footer-text {
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .version {
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 40px 15px;
+            }
+            
+            .title {
+                font-size: 2.5rem;
+            }
+            
+            .features {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .links-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-slide-up {
+            animation: slideUp 0.8s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header animate-fade-in">
+            <div class="logo">🚀</div>
+            <h1 class="title">VibeGhost</h1>
+            <p class="subtitle">AI提示词助手 - 让AI创作更简单高效</p>
+        </div>
+
+        <div class="features animate-slide-up">
+            <div class="feature-card">
+                <span class="feature-icon">🤖</span>
+                <h3 class="feature-title">智能对话</h3>
+                <p class="feature-desc">集成多个AI平台，提供智能对话、代码生成、文本创作等功能</p>
+            </div>
+            
+            <div class="feature-card">
+                <span class="feature-icon">📝</span>
+                <h3 class="feature-title">提示词管理</h3>
+                <p class="feature-desc">内置丰富的提示词模板，支持自定义和分享，让AI输出更精准</p>
+            </div>
+            
+            <div class="feature-card">
+                <span class="feature-icon">🌐</span>
+                <h3 class="feature-title">多标签浏览</h3>
+                <p class="feature-desc">类Chrome的多标签页设计，同时访问多个AI网站，提高工作效率</p>
+            </div>
+        </div>
+
+        <div class="quick-links animate-slide-up">
+            <h2 class="quick-links-title">🌟 热门AI工具</h2>
+            <div class="links-grid">
+                <a href="#" class="link-button" onclick="openWebsite('deepseek', 'DeepSeek', 'https://chat.deepseek.com/')">
+                    <span class="link-icon">🤖</span>
+                    <span class="link-text">DeepSeek</span>
+                </a>
+                
+                <a href="#" class="link-button" onclick="openWebsite('chatgpt', 'ChatGPT', 'https://chat.openai.com/')">
+                    <span class="link-icon">💬</span>
+                    <span class="link-text">ChatGPT</span>
+                </a>
+                
+                <a href="#" class="link-button" onclick="openWebsite('claude', 'Claude', 'https://claude.ai/')">
+                    <span class="link-icon">🧠</span>
+                    <span class="link-text">Claude</span>
+                </a>
+                
+                <a href="#" class="link-button" onclick="openWebsite('gemini', 'Gemini', 'https://gemini.google.com/')">
+                    <span class="link-icon">✨</span>
+                    <span class="link-text">Gemini</span>
+                </a>
+                
+                <a href="#" class="link-button" onclick="openWebsite('kimi', 'Kimi', 'https://kimi.moonshot.cn/')">
+                    <span class="link-icon">🌙</span>
+                    <span class="link-text">Kimi</span>
+                </a>
+                
+                <a href="#" class="link-button" onclick="openWebsite('tongyi', '通义千问', 'https://tongyi.aliyun.com/')">
+                    <span class="link-icon">🎯</span>
+                    <span class="link-text">通义千问</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="footer animate-fade-in">
+            <p class="footer-text">选择右侧网站列表中的工具开始创作，或点击上方快捷按钮</p>
+            <p class="version">VibeGhost v1.1.0 - AI提示词助手</p>
+        </div>
+    </div>
+
+    <script>
+        // 添加页面加载动画
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.feature-card');
+            cards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.2}s`;
+                card.classList.add('animate-slide-up');
+            });
+        });
+
+        // 打开网站功能
+        function openWebsite(id, name, url) {
+            // 检查是否在Electron环境中
+            if (window.electronAPI && window.electronAPI.createTab) {
+                window.electronAPI.createTab({
+                    id: id,
+                    name: name,
+                    url: url,
+                    description: `${name} AI助手`,
+                    icon: getIconForSite(id),
+                    category: 'ai',
+                    tags: ['AI', '对话'],
+                    isActive: true
+                }).then(result => {
+                    if (result && result.success) {
+                        console.log(`Successfully opened ${name}`);
+                    } else {
+                        console.error(`Failed to open ${name}:`, result?.error);
+                        // 降级到直接打开链接
+                        window.open(url, '_blank');
+                    }
+                }).catch(error => {
+                    console.error(`Error opening ${name}:`, error);
+                    // 降级到直接打开链接
+                    window.open(url, '_blank');
+                });
+            } else {
+                // 非Electron环境，直接打开链接
+                window.open(url, '_blank');
+            }
+        }
+
+        function getIconForSite(id) {
+            const icons = {
+                'deepseek': '🤖',
+                'chatgpt': '💬',
+                'claude': '🧠',
+                'gemini': '✨',
+                'kimi': '🌙',
+                'tongyi': '🎯'
+            };
+            return icons[id] || '🌐';
+        }
+
+        // 添加键盘快捷键支持
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case '1':
+                        e.preventDefault();
+                        openWebsite('deepseek', 'DeepSeek', 'https://chat.deepseek.com/');
+                        break;
+                    case '2':
+                        e.preventDefault();
+                        openWebsite('chatgpt', 'ChatGPT', 'https://chat.openai.com/');
+                        break;
+                    case '3':
+                        e.preventDefault();
+                        openWebsite('claude', 'Claude', 'https://claude.ai/');
+                        break;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -167,10 +167,6 @@ const TabManager: React.FC<TabManagerProps> = ({
           </Tooltip>
         </div>
       </div>
-      
-      <div className="tab-info">
-        <span className="tab-count">{tabs.length} 个标签页</span>
-      </div>
     </div>
   )
 }

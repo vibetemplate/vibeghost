@@ -94,20 +94,12 @@ const BrowserToolbar: React.FC<BrowserToolbarProps> = ({
   }
 
   const isSecureUrl = activeTab?.url.startsWith('https://') || false
-  const currentDomain = activeTab?.url ? new URL(activeTab.url).hostname : ''
 
   const getDisplayUrl = () => {
     if (isEditing) {
       return urlInput
     }
     return activeTab?.url || 'https://'
-  }
-
-  const getDisplayTitle = () => {
-    if (activeTab?.title && activeTab.title !== activeTab.websiteName) {
-      return activeTab.title
-    }
-    return activeTab?.websiteName || '未知页面'
   }
 
   if (!activeTab) {
@@ -195,16 +187,6 @@ const BrowserToolbar: React.FC<BrowserToolbarProps> = ({
               allowClear
             />
           </div>
-          
-          {!isCompact && (
-            <div className="page-info">
-              <div className="page-title" title={getDisplayTitle()}>
-                <span className="site-icon">{activeTab.websiteIcon}</span>
-                <span className="title-text">{getDisplayTitle()}</span>
-              </div>
-              <div className="page-domain">{currentDomain}</div>
-            </div>
-          )}
         </div>
 
         <div className="toolbar-actions">

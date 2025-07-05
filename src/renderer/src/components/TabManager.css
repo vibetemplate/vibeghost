@@ -26,7 +26,7 @@
 .tabs-container {
   display: flex;
   align-items: center;
-  min-height: 40px;
+  min-height: 32px;
   padding: 0 8px;
 }
 
@@ -183,17 +183,6 @@
   color: #1890ff;
 }
 
-.tab-info {
-  padding: 4px 16px;
-  background: #fafafa;
-  border-top: 1px solid #f0f0f0;
-  text-align: right;
-}
-
-.tab-count {
-  font-size: 11px;
-  color: #666;
-}
 
 /* 响应式设计 */
 @media (max-width: 768px) {
