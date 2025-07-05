@@ -1,13 +1,14 @@
-import { BrowserWindow, BrowserView, screen, ipcMain, shell } from 'electron'
+import { BrowserWindow, BrowserView, screen, shell } from 'electron'
 import { join } from 'path'
-import { AppConfig } from '../shared/types'
 import { app } from 'electron'
+import { TabManager } from './tab-manager'
 
 export class WindowManager {
   private mainWindow: BrowserWindow | null = null
-  private mainView: BrowserView | null = null
   private sideView: BrowserView | null = null
+  private tabManager: TabManager | null = null
   private sidebarWidth = 350
+  private tabBarHeight = 80 // 增加高度为标签页栏和工具栏预留空间
 
   async createMainWindow(): Promise<BrowserWindow> {
     const { width, height } = screen.getPrimaryDisplay().workAreaSize
@@ -26,7 +27,9 @@ export class WindowManager {
         webSecurity: true,
         allowRunningInsecureContent: false
       },
-      show: true
+      show: true,
+      // 确保主窗口内容可以覆盖BrowserView
+      alwaysOnTop: false
     })
 
     this.mainWindow.once('ready-to-show', () => {
@@ -36,8 +39,9 @@ export class WindowManager {
     })
 
     this.mainWindow.on('closed', () => {
+      this.tabManager?.destroy()
+      this.tabManager = null
       this.mainWindow = null
-      this.mainView = null
       this.sideView = null
     })
 
@@ -51,6 +55,7 @@ export class WindowManager {
   async setupViews(mainWindow: BrowserWindow): Promise<void> {
     if (!mainWindow) return
 
+    // 创建侧边栏视图
     this.sideView = new BrowserView({
       webPreferences: {
         nodeIntegration: false,
@@ -60,37 +65,18 @@ export class WindowManager {
       }
     })
 
-    this.mainView = new BrowserView({
-      webPreferences: {
-        nodeIntegration: false,
-        contextIsolation: false,
-        webSecurity: false,
-        allowRunningInsecureContent: true,
-        partition: 'persist:main'
-      }
-    })
+    // 初始化TabManager
+    this.tabManager = new TabManager(mainWindow, 8)
 
-    this.mainView.webContents.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36')
-    
-    this.mainView.webContents.session.webRequest.onBeforeSendHeaders((details, callback) => {
-      details.requestHeaders['Accept'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8'
-      details.requestHeaders['Accept-Language'] = 'zh-CN,zh;q=0.9,en;q=0.8'
-      details.requestHeaders['Accept-Encoding'] = 'gzip, deflate, br'
-      details.requestHeaders['Cache-Control'] = 'no-cache'
-      details.requestHeaders['Pragma'] = 'no-cache'
-      details.requestHeaders['Sec-Ch-Ua'] = '"Not_A Brand";v="8", "Chromium";v="121", "Google Chrome";v="121"'
-      details.requestHeaders['Sec-Ch-Ua-Mobile'] = '?0'
-      details.requestHeaders['Sec-Ch-Ua-Platform'] = '"macOS"'
-      details.requestHeaders['Sec-Fetch-Dest'] = 'document'
-      details.requestHeaders['Sec-Fetch-Mode'] = 'navigate'
-      details.requestHeaders['Sec-Fetch-Site'] = 'none'
-      details.requestHeaders['Sec-Fetch-User'] = '?1'
-      details.requestHeaders['Upgrade-Insecure-Requests'] = '1'
-      callback({ requestHeaders: details.requestHeaders })
+    // 设置标签页区域边界
+    this.tabManager.setTabAreaBounds({
+      x: 0,
+      y: this.tabBarHeight,
+      width: 0,
+      height: 0
     })
 
     mainWindow.addBrowserView(this.sideView)
-    mainWindow.addBrowserView(this.mainView)
 
     this.updateViewLayout()
     await this.loadViewContents()
@@ -98,7 +84,7 @@ export class WindowManager {
   }
 
   private async loadViewContents(): Promise<void> {
-    if (!this.sideView || !this.mainView) return
+    if (!this.sideView) return
 
     try {
       if (!app.isPackaged && process.env['ELECTRON_RENDERER_URL']) {
@@ -108,34 +94,38 @@ export class WindowManager {
           join(__dirname, '../renderer/sidebar.html')
         )
       }
-      await this.mainView.webContents.loadURL('https://chat.deepseek.com')
+      console.log('侧边栏内容加载完成')
     } catch (error) {
       console.error('加载视图内容失败:', error)
     }
   }
 
   private updateViewLayout(): void {
-    if (!this.mainWindow || !this.sideView || !this.mainView) return
+    if (!this.mainWindow || !this.sideView) return
 
     const contentBounds = this.mainWindow.getContentBounds()
 
-    this.mainView.setBounds({
-      x: 0,
-      y: 0,
-      width: contentBounds.width - this.sidebarWidth,
-      height: contentBounds.height
-    })
-
+    // 更新侧边栏布局 - 为TabHostApp预留顶部空间
     this.sideView.setBounds({
       x: contentBounds.width - this.sidebarWidth,
-      y: 0,
+      y: this.tabBarHeight, // 从标签栏高度开始，不覆盖TabHostApp
       width: this.sidebarWidth,
-      height: contentBounds.height
+      height: contentBounds.height - this.tabBarHeight
     })
+
+    // 更新标签页管理器布局
+    if (this.tabManager) {
+      this.tabManager.setTabAreaBounds({
+        x: 0,
+        y: this.tabBarHeight,
+        width: contentBounds.width - this.sidebarWidth,
+        height: contentBounds.height - this.tabBarHeight
+      })
+    }
   }
 
   private setupViewEvents(): void {
-    if (!this.sideView || !this.mainView) return
+    if (!this.sideView) return
 
     this.sideView.webContents.on('dom-ready', () => {
       console.log('侧边栏加载完成')
@@ -148,21 +138,9 @@ export class WindowManager {
       console.error('侧边栏加载失败:', errorCode, errorDescription)
     })
 
-    this.mainView.webContents.on('dom-ready', () => {
-      console.log('主视图加载完成')
-    })
-
-    this.mainView.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
-      console.error('主视图加载失败:', errorCode, errorDescription)
-    })
-
-    this.mainView.webContents.setWindowOpenHandler(({ url }) => {
+    this.sideView.webContents.setWindowOpenHandler(({ url }) => {
       shell.openExternal(url)
       return { action: 'deny' }
-    })
-
-    this.mainView.webContents.on('will-navigate', (event, navigationUrl) => {
-      console.log('导航到:', navigationUrl)
     })
   }
 
@@ -175,8 +153,8 @@ export class WindowManager {
     return this.mainWindow
   }
 
-  getMainView(): BrowserView | null {
-    return this.mainView
+  getTabManager(): TabManager | null {
+    return this.tabManager
   }
 
   getSideView(): BrowserView | null {
@@ -184,14 +162,20 @@ export class WindowManager {
   }
 
   async switchToSite(url: string): Promise<void> {
-    if (this.mainView) {
-      await this.mainView.webContents.loadURL(url)
+    // 通过标签页管理器处理网站切换
+    const activeTab = this.tabManager?.getActiveTab()
+    if (activeTab) {
+      await this.tabManager?.navigateTab(activeTab.id, url)
     }
   }
 
-  refreshMainView(): void {
-    if (this.mainView) {
-      this.mainView.webContents.reload()
+  refreshActiveTab(): void {
+    const activeTab = this.tabManager?.getActiveTab()
+    if (activeTab && this.mainWindow) {
+      this.mainWindow.webContents.send('tab-navigation', {
+        tabId: activeTab.id,
+        action: 'reload'
+      })
     }
   }
 
@@ -202,11 +186,14 @@ export class WindowManager {
   }
 
   getViewState() {
+    const activeTab = this.tabManager?.getActiveTab()
     return {
-      mainViewUrl: this.mainView?.webContents.getURL() || '',
+      activeTabUrl: activeTab?.url || '',
+      activeTabTitle: activeTab?.title || '',
       sideViewUrl: this.sideView?.webContents.getURL() || '',
       sidebarWidth: this.sidebarWidth,
-      windowBounds: this.mainWindow?.getBounds() || null
+      windowBounds: this.mainWindow?.getBounds() || null,
+      tabCount: this.tabManager?.getTabCount() || 0
     }
   }
 }

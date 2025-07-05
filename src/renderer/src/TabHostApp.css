@@ -1,0 +1,59 @@
+.tab-host-app {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 350px !important; /* 为侧边栏预留空间 */
+  height: auto !important;
+  background: #ffffff !important;
+  border-bottom: 1px solid #e8e8e8 !important;
+  z-index: 999999 !important; /* 超高z-index确保显示在所有内容之上 */
+  display: flex !important;
+  flex-direction: column !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  pointer-events: auto !important; /* 确保可以接收鼠标事件 */
+  visibility: visible !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+/* 确保标签页管理器和工具栏紧密排列 */
+.tab-host-app .tab-manager {
+  border-bottom: none !important;
+  flex-shrink: 0 !important;
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  z-index: 999998 !important;
+}
+
+.tab-host-app .browser-toolbar {
+  border-bottom: 1px solid #e8e8e8 !important;
+  flex-shrink: 0 !important;
+  min-height: 40px !important;
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  z-index: 999997 !important;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .tab-host-app {
+    right: 250px; /* 较小的侧边栏空间 */
+  }
+}
+
+/* 暗色主题支持 */
+.dark .tab-host-app {
+  background: #1f1f1f;
+  border-bottom-color: #333;
+}
+
+/* 确保组件层级正确 */
+.tab-host-app {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.dark .tab-host-app {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}

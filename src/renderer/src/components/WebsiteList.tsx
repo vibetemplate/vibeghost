@@ -1,43 +1,33 @@
 import React from 'react'
-import { Select, Empty, Tooltip } from 'antd'
-import { LinkOutlined } from '@ant-design/icons'
-import { WebsiteInfo } from '../../../shared/types'
+import { Empty, Tooltip, Badge } from 'antd'
+import { PlusOutlined } from '@ant-design/icons'
+import { WebsiteInfo, AITab } from '../../../shared/types'
 import './WebsiteList.css'
 
 interface WebsiteListProps {
   websites: WebsiteInfo[]
-  selectedWebsite?: string
-  onWebsiteChange: (website: WebsiteInfo) => void
-  loading?: boolean
+  openTabs?: AITab[]  // 已打开的标签页
+  onWebsiteSelect: (website: WebsiteInfo) => void  // 新建Tab
 }
 
 const WebsiteList: React.FC<WebsiteListProps> = ({
   websites,
-  selectedWebsite,
-  onWebsiteChange,
-  loading = false
+  openTabs = [],
+  onWebsiteSelect
 }) => {
-  const handleWebsiteSelect = (websiteId: string) => {
-    const website = websites.find(w => w.id === websiteId)
-    if (website) {
-      onWebsiteChange(website)
-    }
+  // 获取指定网站已打开的标签页数量
+  const getWebsiteTabCount = (websiteId: string): number => {
+    return openTabs.filter(tab => tab.websiteId === websiteId).length
   }
 
-  const renderWebsiteOption = (website: WebsiteInfo) => (
-    <div className="website-option" key={website.id}>
-      <div className="website-info">
-        <span className="website-icon">{website.icon}</span>
-        <div className="website-details">
-          <div className="website-name">{website.name}</div>
-          <div className="website-url">{website.url}</div>
-        </div>
-      </div>
-      {website.description && (
-        <div className="website-description">{website.description}</div>
-      )}
-    </div>
-  )
+  // 检查网站是否已打开
+  const isWebsiteOpen = (websiteId: string): boolean => {
+    return openTabs.some(tab => tab.websiteId === websiteId)
+  }
+
+  const handleWebsiteClick = (website: WebsiteInfo) => {
+    onWebsiteSelect(website)
+  }
 
   if (websites.length === 0) {
     return (
@@ -72,41 +62,43 @@ const WebsiteList: React.FC<WebsiteListProps> = ({
       }}>
         随书资源v1.0(网站)
       </div>
-      <Select
-        value={selectedWebsite}
-        onChange={handleWebsiteSelect}
-        style={{ width: '100%' }}
-        placeholder="选择AI网站"
-        size="middle"
-        loading={loading}
-        dropdownStyle={{ maxHeight: '300px' }}
-        optionLabelProp="label"
-      >
-        {websites.map(website => (
-          <Select.Option 
-            key={website.id} 
-            value={website.id}
-            label={
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span>{website.icon}</span>
-                <span>{website.name}</span>
-              </div>
-            }
-          >
-            <div className="website-option-dropdown">
+      
+      <div className="website-list-container">
+        {websites.map(website => {
+          const tabCount = getWebsiteTabCount(website.id)
+          const isOpened = isWebsiteOpen(website.id)
+          
+          return (
+            <div
+              key={website.id}
+              className={`website-item ${isOpened ? 'opened' : ''}`}
+              onClick={() => handleWebsiteClick(website)}
+            >
               <div className="website-main">
                 <span className="website-icon">{website.icon}</span>
-                <div className="website-text">
+                <div className="website-info">
                   <div className="website-name">{website.name}</div>
                   <div className="website-url">{website.url}</div>
                 </div>
-                <Tooltip title="打开网站">
-                  <LinkOutlined className="website-link-icon" />
-                </Tooltip>
+                
+                <div className="website-actions">
+                  {tabCount > 0 && (
+                    <Badge 
+                      count={tabCount} 
+                      size="small" 
+                      style={{ backgroundColor: '#52c41a' }}
+                    />
+                  )}
+                  <Tooltip title="新建标签页">
+                    <PlusOutlined className="add-tab-icon" />
+                  </Tooltip>
+                </div>
               </div>
+              
               {website.description && (
                 <div className="website-description">{website.description}</div>
               )}
+              
               {website.tags && website.tags.length > 0 && (
                 <div className="website-tags">
                   {website.tags.map(tag => (
@@ -115,9 +107,9 @@ const WebsiteList: React.FC<WebsiteListProps> = ({
                 </div>
               )}
             </div>
-          </Select.Option>
-        ))}
-      </Select>
+          )
+        })}
+      </div>
     </div>
   )
 }

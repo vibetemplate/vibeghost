@@ -1,5 +1,35 @@
-.website-option-dropdown {
-  padding: 8px 0;
+.website-list-container {
+  background: #fafafa;
+  border-radius: 6px;
+  border: 1px solid #f0f0f0;
+  overflow: hidden;
+}
+
+.website-item {
+  padding: 12px;
+  background: white;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.website-item:last-child {
+  border-bottom: none;
+}
+
+.website-item:hover {
+  background: #e6f7ff;
+  border-color: #91d5ff;
+}
+
+.website-item.opened {
+  background: #f6ffed;
+  border-left: 3px solid #52c41a;
+}
+
+.website-item.opened:hover {
+  background: #d9f7be;
 }
 
 .website-main {
@@ -14,7 +44,7 @@
   flex-shrink: 0;
 }
 
-.website-text {
+.website-info {
   flex: 1;
   min-width: 0;
 }
@@ -34,15 +64,23 @@
   margin-top: 2px;
 }
 
-.website-link-icon {
-  color: #1890ff;
-  font-size: 14px;
+.website-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   flex-shrink: 0;
-  opacity: 0.7;
 }
 
-.website-link-icon:hover {
+.add-tab-icon {
+  color: #1890ff;
+  font-size: 14px;
+  opacity: 0.7;
+  transition: all 0.2s ease;
+}
+
+.website-item:hover .add-tab-icon {
   opacity: 1;
+  transform: scale(1.1);
 }
 
 .website-description {
@@ -68,4 +106,63 @@
   border-radius: 3px;
   font-size: 11px;
   line-height: 1.2;
+}
+
+/* 已打开网站的特殊样式 */
+.website-item.opened .website-name {
+  color: #52c41a;
+  font-weight: 600;
+}
+
+.website-item.opened .add-tab-icon {
+  color: #52c41a;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .website-item {
+    padding: 10px;
+  }
+  
+  .website-name {
+    font-size: 13px;
+  }
+  
+  .website-url {
+    font-size: 11px;
+  }
+  
+  .website-description {
+    display: none;
+  }
+}
+
+/* 暗色主题支持 */
+.dark .website-list-container {
+  background: #2a2a2a;
+  border-color: #444;
+}
+
+.dark .website-item {
+  background: #1f1f1f;
+  border-bottom-color: #333;
+  color: #ddd;
+}
+
+.dark .website-item:hover {
+  background: #333;
+  border-color: #555;
+}
+
+.dark .website-item.opened {
+  background: #1f2f1f;
+  border-left-color: #52c41a;
+}
+
+.dark .website-name {
+  color: #ddd;
+}
+
+.dark .website-item.opened .website-name {
+  color: #73d13d;
 }

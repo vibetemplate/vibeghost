@@ -14,15 +14,6 @@ const SidebarApp: React.FC = () => {
   const [activeView, setActiveView] = useState('websites')
   const [showLogPanel, setShowLogPanel] = useState(false)
 
-  const handleSiteChange = async (url: string) => {
-    try {
-      await window.electronAPI.switchSite(url)
-    } catch (error) {
-      console.error('Failed to switch site:', error)
-      Modal.error({ title: '切换站点失败', content: (error as Error).message })
-    }
-  }
-
   const handleRefresh = () => {
     window.location.reload()
   }
@@ -63,7 +54,7 @@ const SidebarApp: React.FC = () => {
 
   return (
     <div className="sidebar-app-container">
-      <Header onSiteChange={handleSiteChange} onRefresh={handleRefresh} />
+      <Header onRefresh={handleRefresh} />
       <main className={`main-content ${showLogPanel ? 'with-log-panel' : ''}`}>
         {renderActiveView()}
         {showLogPanel && (

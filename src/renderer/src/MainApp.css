@@ -1,0 +1,299 @@
+.main-app {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.tab-area {
+  flex-shrink: 0;
+  border-bottom: 1px solid #e8e8e8;
+  background: #ffffff;
+  z-index: 10;
+}
+
+.welcome-screen {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 40px;
+}
+
+.welcome-content {
+  text-align: center;
+  max-width: 500px;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.welcome-content h2 {
+  font-size: 28px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.welcome-content p {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 32px;
+  line-height: 1.6;
+}
+
+.welcome-instructions {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  text-align: left;
+}
+
+.instruction-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 8px;
+  border: 1px solid #e8e8e8;
+  transition: all 0.2s ease;
+}
+
+.instruction-item:hover {
+  background: rgba(255, 255, 255, 1);
+  border-color: #1890ff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.instruction-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.instruction-item span:last-child {
+  font-size: 14px;
+  color: #333;
+  line-height: 1.4;
+}
+
+/* 空状态动画 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.welcome-screen {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.welcome-content {
+  animation: fadeInUp 0.8s ease-out 0.2s both;
+}
+
+.instruction-item {
+  animation: fadeInUp 0.6s ease-out calc(0.4s + var(--delay, 0s)) both;
+}
+
+.instruction-item:nth-child(1) {
+  --delay: 0.1s;
+}
+
+.instruction-item:nth-child(2) {
+  --delay: 0.2s;
+}
+
+.instruction-item:nth-child(3) {
+  --delay: 0.3s;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .welcome-screen {
+    padding: 20px;
+  }
+  
+  .welcome-content {
+    padding: 24px;
+    max-width: 100%;
+  }
+  
+  .welcome-content h2 {
+    font-size: 24px;
+  }
+  
+  .welcome-content p {
+    font-size: 14px;
+    margin-bottom: 24px;
+  }
+  
+  .instruction-item {
+    padding: 10px 12px;
+    gap: 10px;
+  }
+  
+  .instruction-number {
+    width: 20px;
+    height: 20px;
+    font-size: 11px;
+  }
+  
+  .instruction-item span:last-child {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .welcome-screen {
+    padding: 16px;
+  }
+  
+  .welcome-content {
+    padding: 20px;
+  }
+  
+  .welcome-content h2 {
+    font-size: 20px;
+    margin-bottom: 12px;
+  }
+  
+  .welcome-content p {
+    font-size: 13px;
+    margin-bottom: 20px;
+  }
+  
+  .welcome-instructions {
+    gap: 12px;
+  }
+  
+  .instruction-item {
+    padding: 8px 10px;
+    gap: 8px;
+  }
+  
+  .instruction-number {
+    width: 18px;
+    height: 18px;
+    font-size: 10px;
+  }
+  
+  .instruction-item span:last-child {
+    font-size: 12px;
+  }
+}
+
+/* 暗色主题支持 */
+.dark .main-app {
+  background: #1f1f1f;
+}
+
+.dark .tab-area {
+  background: #1f1f1f;
+  border-bottom-color: #333;
+}
+
+.dark .welcome-screen {
+  background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+}
+
+.dark .welcome-content {
+  background: rgba(42, 42, 42, 0.9);
+  color: #ddd;
+}
+
+.dark .welcome-content h2 {
+  color: #ddd;
+  background: linear-gradient(135deg, #69c0ff 0%, #b37feb 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.dark .welcome-content p {
+  color: #999;
+}
+
+.dark .instruction-item {
+  background: rgba(42, 42, 42, 0.8);
+  border-color: #444;
+}
+
+.dark .instruction-item:hover {
+  background: rgba(42, 42, 42, 1);
+  border-color: #69c0ff;
+}
+
+.dark .instruction-number {
+  background: linear-gradient(135deg, #69c0ff 0%, #b37feb 100%);
+}
+
+.dark .instruction-item span:last-child {
+  color: #ddd;
+}
+
+/* 加载状态 */
+.main-app.loading {
+  pointer-events: none;
+}
+
+.main-app.loading .tab-area {
+  opacity: 0.7;
+}
+
+/* 错误状态 */
+.main-app.error .welcome-screen {
+  background: linear-gradient(135deg, #ff7875 0%, #ff4d4f 100%);
+}
+
+.main-app.error .welcome-content {
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.main-app.error .welcome-content h2 {
+  color: #ff4d4f;
+  background: none;
+  -webkit-text-fill-color: #ff4d4f;
+}
+
+/* 过渡动画 */
+.tab-area {
+  transition: all 0.3s ease;
+}
+
+.welcome-screen {
+  transition: all 0.3s ease;
+}
+
+/* 焦点样式 */
+.instruction-item:focus {
+  outline: 2px solid #1890ff;
+  outline-offset: 2px;
+}
+
+.dark .instruction-item:focus {
+  outline-color: #69c0ff;
+}

@@ -1,15 +1,37 @@
 .log-panel-collapsed {
   position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  bottom: 16px;
+  left: 16px;
+  width: 240px;
   background: white;
-  border-top: 1px solid #f0f0f0;
+  border: 1px solid #f0f0f0;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   z-index: 100;
+  transition: all 0.3s ease;
+}
+
+.log-panel-collapsed:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
 }
 
 .log-panel-expanded {
-  margin: 8px 0;
+  position: fixed;
+  bottom: 16px;
+  left: 16px;
+  width: 480px;
+  max-width: calc(100vw - 32px);
+  background: white;
+  border: 1px solid #f0f0f0;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  margin: 0;
+}
+
+.log-panel-expanded .ant-card-body {
+  padding: 12px;
 }
 
 .log-controls {
@@ -85,4 +107,220 @@
 
 .log-container::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
+}
+
+/* 折叠按钮样式优化 */
+.log-panel-collapsed .ant-btn {
+  border: none;
+  background: transparent;
+  color: #666;
+  font-size: 12px;
+  padding: 8px 12px;
+  height: auto;
+  text-align: left;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.log-panel-collapsed .ant-btn:hover {
+  background: #f5f5f5;
+  color: #1890ff;
+}
+
+.log-panel-collapsed .ant-btn .anticon {
+  font-size: 10px;
+  margin-right: 6px;
+}
+
+/* 展开面板标题样式 */
+.log-panel-expanded .ant-card-head {
+  background: #fafafa;
+  border-bottom: 1px solid #f0f0f0;
+  border-radius: 6px 6px 0 0;
+  padding: 0 12px;
+  min-height: 32px;
+}
+
+.log-panel-expanded .ant-card-head-title {
+  font-size: 12px;
+  font-weight: 500;
+  color: #333;
+  padding: 8px 0;
+}
+
+.log-panel-expanded .ant-card-head-extra {
+  padding: 8px 0;
+}
+
+.log-panel-expanded .ant-card-head-extra .ant-btn {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+}
+
+.log-panel-expanded .ant-card-head-extra .ant-btn:hover {
+  background: #e6f7ff;
+  color: #1890ff;
+}
+
+/* 日志控件优化 */
+.log-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.log-controls .ant-select,
+.log-controls .ant-input-affix-wrapper {
+  font-size: 12px;
+}
+
+.log-controls .ant-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+
+.log-controls .ant-btn:hover {
+  background: #f0f0f0;
+  color: #1890ff;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .log-panel-collapsed {
+    bottom: 12px;
+    left: 12px;
+    width: 200px;
+  }
+  
+  .log-panel-expanded {
+    bottom: 12px;
+    left: 12px;
+    width: calc(100vw - 24px);
+    max-width: none;
+  }
+  
+  .log-controls {
+    gap: 4px;
+  }
+  
+  .log-controls .ant-select {
+    width: 100px;
+  }
+  
+  .log-controls .ant-input-affix-wrapper {
+    width: 120px;
+  }
+}
+
+@media (max-width: 480px) {
+  .log-panel-collapsed {
+    width: 160px;
+    bottom: 8px;
+    left: 8px;
+  }
+  
+  .log-panel-expanded {
+    bottom: 8px;
+    left: 8px;
+    width: calc(100vw - 16px);
+  }
+  
+  .log-controls {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  
+  .log-controls .ant-space {
+    width: 100%;
+  }
+  
+  .log-controls .ant-select,
+  .log-controls .ant-input-affix-wrapper {
+    width: 100%;
+  }
+  
+  .log-container {
+    height: 150px;
+  }
+}
+
+/* 暗色主题支持 */
+.dark .log-panel-collapsed {
+  background: #1f1f1f;
+  border-color: #333;
+}
+
+.dark .log-panel-expanded {
+  background: #1f1f1f;
+  border-color: #333;
+}
+
+.dark .log-panel-expanded .ant-card-head {
+  background: #2a2a2a;
+  border-bottom-color: #333;
+}
+
+.dark .log-panel-expanded .ant-card-head-title {
+  color: #ddd;
+}
+
+.dark .log-panel-collapsed .ant-btn {
+  color: #999;
+}
+
+.dark .log-panel-collapsed .ant-btn:hover {
+  background: #333;
+  color: #69c0ff;
+}
+
+.dark .log-panel-expanded .ant-card-head-extra .ant-btn:hover {
+  background: #1f3a4a;
+  color: #69c0ff;
+}
+
+.dark .log-controls {
+  border-bottom-color: #333;
+}
+
+.dark .log-controls .ant-btn:hover {
+  background: #333;
+  color: #69c0ff;
+}
+
+.dark .log-container {
+  background: #2a2a2a;
+  border-color: #333;
+  color: #ddd;
+}
+
+.dark .log-entry:hover {
+  background-color: #333;
+}
+
+.dark .log-timestamp {
+  color: #999;
+}
+
+.dark .log-category {
+  color: #69c0ff;
+}
+
+.dark .log-message {
+  color: #ddd;
 }

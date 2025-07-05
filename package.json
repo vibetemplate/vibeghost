@@ -46,13 +46,15 @@
   },
   "dependencies": {
     "@ant-design/icons": "^5.2.6",
+    "@types/uuid": "^10.0.0",
     "antd": "^5.12.8",
     "axios": "^1.6.2",
     "electron-store": "^8.1.0",
     "https-proxy-agent": "^7.0.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "socks-proxy-agent": "^8.0.2"
+    "socks-proxy-agent": "^8.0.2",
+    "uuid": "^11.1.0"
   },
   "build": {
     "appId": "com.vibeghost.app",

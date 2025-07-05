@@ -108,3 +108,54 @@ export interface AppSettings {
   showLogPanel: boolean;
   defaultCategory: string;
 }
+
+// AI标签页接口
+export interface AITab {
+  id: string;
+  websiteId: string;        // 对应网站ID
+  websiteName: string;      // 显示名称
+  websiteIcon: string;      // 网站图标emoji
+  url: string;              // 网站URL
+  title?: string;           // 页面标题
+  isActive: boolean;        // 是否为活跃标签
+  isLoading: boolean;       // 是否正在加载
+  webContentsId?: number;   // Electron WebContents ID
+  createdAt: Date;          // 创建时间
+  lastActivatedAt?: Date;   // 最后激活时间
+}
+
+// 标签页管理器状态
+export interface TabManagerState {
+  tabs: AITab[];
+  activeTabId: string | null;
+  maxTabs: number;
+}
+
+// 浏览器导航状态
+export interface BrowserNavigationState {
+  canGoBack: boolean;
+  canGoForward: boolean;
+  isLoading: boolean;
+  currentUrl: string;
+  title: string;
+}
+
+// Tab操作事件类型
+export type TabAction = 
+  | { type: 'CREATE_TAB'; payload: { website: WebsiteInfo } }
+  | { type: 'CLOSE_TAB'; payload: { tabId: string } }
+  | { type: 'SWITCH_TAB'; payload: { tabId: string } }
+  | { type: 'UPDATE_TAB'; payload: { tabId: string; updates: Partial<AITab> } }
+  | { type: 'REORDER_TABS'; payload: { fromIndex: number; toIndex: number } }
+
+// Tab相关的IPC事件
+export interface TabIPCEvents {
+  'create-tab': { website: WebsiteInfo };
+  'close-tab': { tabId: string };
+  'switch-tab': { tabId: string };
+  'get-tabs': void;
+  'tab-created': AITab;
+  'tab-closed': { tabId: string };
+  'tab-updated': { tabId: string; updates: Partial<AITab> };
+  'navigation-state-changed': { tabId: string; state: BrowserNavigationState };
+}

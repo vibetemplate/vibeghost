@@ -1,0 +1,252 @@
+.tab-manager {
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border-bottom: 1px solid #e8e8e8;
+  user-select: none;
+  position: relative;
+  z-index: 10000; /* 确保显示在最顶层 */
+}
+
+.tab-manager.empty {
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-state {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #999;
+  font-size: 14px;
+}
+
+.tabs-container {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 8px;
+}
+
+.tabs-list {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.tabs-list::-webkit-scrollbar {
+  display: none;
+}
+
+.tab-item {
+  display: flex;
+  align-items: center;
+  min-width: 120px;
+  max-width: 200px;
+  height: 32px;
+  margin-right: 2px;
+  padding: 0 8px;
+  background: #f5f5f5;
+  border: 1px solid #d9d9d9;
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.tab-item:hover {
+  background: #e6f7ff;
+  border-color: #91d5ff;
+}
+
+.tab-item.active {
+  background: #ffffff;
+  border-color: #1890ff;
+  border-bottom: 1px solid #ffffff;
+  margin-bottom: -1px;
+  z-index: 1;
+}
+
+.tab-item.loading {
+  background: linear-gradient(90deg, #f5f5f5 25%, #e8e8e8 50%, #f5f5f5 75%);
+  background-size: 200% 100%;
+  animation: loading-gradient 1.5s infinite;
+}
+
+@keyframes loading-gradient {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.tab-content {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  gap: 6px;
+}
+
+.tab-icon {
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.tab-title {
+  font-size: 12px;
+  font-weight: 500;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+.tab-item.active .tab-title {
+  color: #1890ff;
+  font-weight: 600;
+}
+
+.tab-loading-indicator {
+  display: flex;
+  align-items: center;
+  margin-left: 4px;
+}
+
+.loading-spinner {
+  width: 10px;
+  height: 10px;
+  border: 1px solid #d9d9d9;
+  border-top: 1px solid #1890ff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.tab-close-button {
+  margin-left: 4px;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 2px;
+  opacity: 0;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.tab-item:hover .tab-close-button {
+  opacity: 1;
+}
+
+.tab-close-button:hover {
+  background: #ff4d4f;
+  color: white;
+}
+
+.tab-controls {
+  display: flex;
+  align-items: center;
+  margin-left: 8px;
+  padding-left: 8px;
+  border-left: 1px solid #e8e8e8;
+}
+
+.new-tab-button {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.new-tab-button:hover {
+  background: #e6f7ff;
+  color: #1890ff;
+}
+
+.tab-info {
+  padding: 4px 16px;
+  background: #fafafa;
+  border-top: 1px solid #f0f0f0;
+  text-align: right;
+}
+
+.tab-count {
+  font-size: 11px;
+  color: #666;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .tab-item {
+    min-width: 100px;
+    max-width: 150px;
+  }
+  
+  .tab-title {
+    font-size: 11px;
+  }
+  
+  .tab-info {
+    display: none;
+  }
+}
+
+/* 暗色主题支持 */
+.dark .tab-manager {
+  background: #1f1f1f;
+  border-bottom-color: #333;
+}
+
+.dark .tab-item {
+  background: #2a2a2a;
+  border-color: #444;
+  color: #ddd;
+}
+
+.dark .tab-item:hover {
+  background: #333;
+  border-color: #555;
+}
+
+.dark .tab-item.active {
+  background: #1f1f1f;
+  border-color: #1890ff;
+}
+
+.dark .tab-title {
+  color: #ddd;
+}
+
+.dark .tab-item.active .tab-title {
+  color: #69c0ff;
+}
+
+.dark .tab-controls {
+  border-left-color: #333;
+}
+
+.dark .tab-info {
+  background: #2a2a2a;
+  border-top-color: #333;
+  color: #999;
+}

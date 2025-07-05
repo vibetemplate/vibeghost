@@ -1,34 +1,12 @@
-import React, { useState } from 'react'
-import { Select, Button, Space } from 'antd'
-import { GlobalOutlined, ReloadOutlined } from '@ant-design/icons'
-
-const { Option } = Select
+import React from 'react'
+import { Button, Space } from 'antd'
+import { ReloadOutlined } from '@ant-design/icons'
 
 interface HeaderProps {
-  onSiteChange?: (url: string) => void
   onRefresh?: () => void
 }
 
-const Header: React.FC<HeaderProps> = ({ onSiteChange, onRefresh }) => {
-  const [selectedSite, setSelectedSite] = useState('deepseek')
-
-  const aiSites = [
-    { id: 'deepseek', name: 'DeepSeek', url: 'https://chat.deepseek.com' },
-    { id: 'chatgpt', name: 'ChatGPT', url: 'https://chatgpt.com' },
-    { id: 'claude', name: 'Claude', url: 'https://claude.ai' },
-    { id: 'gemini', name: 'Gemini', url: 'https://gemini.google.com' },
-    { id: 'kimi', name: 'Kimi', url: 'https://kimi.moonshot.cn' },
-    { id: 'tongyi', name: '通义千问', url: 'https://tongyi.aliyun.com' }
-  ]
-
-  const handleSiteChange = (siteId: string) => {
-    setSelectedSite(siteId)
-    const site = aiSites.find(s => s.id === siteId)
-    if (site && onSiteChange) {
-      onSiteChange(site.url)
-    }
-  }
-
+const Header: React.FC<HeaderProps> = ({ onRefresh }) => {
   const handleRefresh = () => {
     if (onRefresh) {
       onRefresh()
@@ -53,7 +31,7 @@ const Header: React.FC<HeaderProps> = ({ onSiteChange, onRefresh }) => {
             fontWeight: '600', 
             color: '#262626' 
           }}>
-            AI 网站切换
+            AI 多标签浏览器
           </span>
           <Button 
             type="text" 
@@ -61,22 +39,18 @@ const Header: React.FC<HeaderProps> = ({ onSiteChange, onRefresh }) => {
             icon={<ReloadOutlined />}
             onClick={handleRefresh}
             style={{ fontSize: '12px' }}
+            title="刷新侧边栏"
           />
         </div>
         
-        <Select
-          value={selectedSite}
-          onChange={handleSiteChange}
-          style={{ width: '100%' }}
-          size="small"
-          suffixIcon={<GlobalOutlined />}
-        >
-          {aiSites.map(site => (
-            <Option key={site.id} value={site.id}>
-              {site.name}
-            </Option>
-          ))}
-        </Select>
+        <div style={{
+          fontSize: '12px',
+          color: '#666',
+          textAlign: 'center',
+          padding: '4px 0'
+        }}>
+          点击下方网站列表创建新标签页
+        </div>
       </Space>
     </div>
   )

@@ -16,11 +16,14 @@
       background-color: #f5f5f5;
       height: 100vh;
       overflow: hidden;
+      position: relative;
     }
     
     #root {
       height: 100vh;
       width: 100vw;
+      position: relative;
+      z-index: 10000; /* 确保React组件层级高于BrowserView */
     }
     
     .loading {

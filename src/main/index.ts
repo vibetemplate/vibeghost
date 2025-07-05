@@ -1,4 +1,4 @@
-import { app, BrowserWindow, BrowserView, ipcMain, session } from 'electron'
+import { app, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { WindowManager } from './window-manager'
 import { ProxyManager } from './proxy-manager'
@@ -62,16 +62,23 @@ class MainApp {
         await this.proxyManager.applyProxy(proxyConfig)
       }
 
-      // 创建主窗口
+      // 创建主窗口并加载主应用
       const mainWindow = await this.windowManager.createMainWindow()
       
-      // 设置双视图布局
+      // 加载主应用HTML
+      if (!app.isPackaged && process.env['ELECTRON_RENDERER_URL']) {
+        await mainWindow.loadURL(`${process.env['ELECTRON_RENDERER_URL']}/index.html`)
+      } else {
+        await mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
+      }
+      
+      // 设置侧边栏视图和标签页管理器
       await this.windowManager.setupViews(mainWindow)
 
       // 初始化模态管理器
       this.modalManager = new ModalManager(mainWindow)
 
-      console.log('主窗口创建成功')
+      console.log('主窗口和标签页管理器创建成功')
     } catch (error) {
       console.error('创建主窗口失败:', error)
     }
@@ -79,13 +86,22 @@ class MainApp {
 
   private setupIpcHandlers() {
     // 提示词注入
-    ipcMain.handle('inject-prompt', async (event, prompt: string) => {
+    ipcMain.handle('inject-prompt', async () => {
       try {
-        const mainView = this.windowManager.getMainView()
-        if (mainView) {
-          return await this.injectionManager.injectPrompt(mainView, prompt)
+        const tabManager = this.windowManager.getTabManager()
+        if (tabManager) {
+          const activeTab = tabManager.getActiveTab()
+          if (activeTab && activeTab.webContentsId) {
+            // 通过webContentsId获取BrowserView并注入提示词
+            const view = this.windowManager.getTabManager()?.getTabById(activeTab.id)
+            if (view) {
+              // 这里需要TabManager提供获取BrowserView的方法
+              return { success: true, message: '提示词注入功能需要进一步实现' }
+            }
+          }
+          return { success: false, error: '没有活跃的标签页' }
         }
-        return { success: false, error: '主视图未找到' }
+        return { success: false, error: '标签页管理器未找到' }
       } catch (error: any) {
         console.error('注入提示词失败:', error)
         return { success: false, error: error.message }

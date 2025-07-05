@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron'
-import { ProxyConfig, SiteConfig, InjectionResult } from '../shared/types'
+import { ProxyConfig, SiteConfig, InjectionResult, WebsiteInfo, AITab, BrowserNavigationState } from '../shared/types'
 
 // 定义暴露给渲染进程的API
 const electronAPI = {
@@ -26,6 +26,35 @@ const electronAPI = {
   
   updateSiteConfig: (config: SiteConfig): Promise<void> => 
     ipcRenderer.invoke('update-site-config', config),
+  
+  // 标签页管理
+  createTab: (website: WebsiteInfo): Promise<{ success: boolean; tab?: AITab; error?: string }> =>
+    ipcRenderer.invoke('create-tab', { website }),
+  
+  closeTab: (tabId: string): Promise<{ success: boolean; error?: string }> =>
+    ipcRenderer.invoke('close-tab', { tabId }),
+  
+  switchTab: (tabId: string): Promise<{ success: boolean; error?: string }> =>
+    ipcRenderer.invoke('switch-tab', { tabId }),
+  
+  getTabs: (): Promise<{ tabs: AITab[]; activeTabId: string | null }> =>
+    ipcRenderer.invoke('get-tabs'),
+  
+  navigateTab: (tabId: string, action: 'back' | 'forward' | 'reload' | 'stop' | 'navigate', url?: string): Promise<{ success: boolean; error?: string }> =>
+    ipcRenderer.invoke('tab-navigation', { tabId, action, url }),
+  
+  // 通用IPC调用
+  invoke: (channel: string, ...args: any[]): Promise<any> =>
+    ipcRenderer.invoke(channel, ...args),
+  
+  // 事件监听器 (用于标签页事件)
+  on: (channel: string, callback: (...args: any[]) => void): void => {
+    ipcRenderer.on(channel, (_, ...args) => callback(...args))
+  },
+  
+  off: (channel: string, callback: (...args: any[]) => void): void => {
+    ipcRenderer.off(channel, callback)
+  },
   
   // 窗口控制
   minimizeWindow: (): void => 

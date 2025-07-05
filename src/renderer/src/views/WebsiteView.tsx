@@ -2,17 +2,72 @@ import React, { useState, useEffect } from 'react'
 import { Divider, message, Spin } from 'antd'
 import WebsiteSelector from '../components/WebsiteSelector'
 import WebsiteList from '../components/WebsiteList'
-import { WebsiteCategory, WebsiteInfo } from '../../../shared/types'
+import { WebsiteCategory, WebsiteInfo, AITab } from '../../../shared/types'
 
 const WebsiteView: React.FC = () => {
   const [categories, setCategories] = useState<WebsiteCategory[]>([])
   const [selectedCategory, setSelectedCategory] = useState<string>('')
-  const [selectedWebsite, setSelectedWebsite] = useState<string>('')
+  const [openTabs, setOpenTabs] = useState<AITab[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     loadWebsiteCategories()
+    loadExistingTabs()
+    setupTabEventListeners()
+    
+    // 清理函数，移除事件监听器
+    return () => {
+      if (window.electronAPI) {
+        window.electronAPI.off('tab-created', handleTabCreated)
+        window.electronAPI.off('tab-closed', handleTabClosed)
+        window.electronAPI.off('tab-updated', handleTabUpdated)
+      }
+    }
   }, [])
+
+  const loadExistingTabs = async () => {
+    try {
+      const result = await window.electronAPI.getTabs()
+      if (result?.tabs) {
+        setOpenTabs(result.tabs)
+      }
+    } catch (error) {
+      console.error('Failed to load existing tabs:', error)
+    }
+  }
+
+  const handleTabCreated = (tab: AITab) => {
+    setOpenTabs(prev => {
+      // 避免重复添加
+      if (prev.find(t => t.id === tab.id)) {
+        return prev
+      }
+      return [...prev, tab]
+    })
+  }
+
+  const handleTabClosed = (data: { tabId: string }) => {
+    setOpenTabs(prev => prev.filter(tab => tab.id !== data.tabId))
+  }
+
+  const handleTabUpdated = (data: { tabId: string, updates: Partial<AITab> }) => {
+    setOpenTabs(prev => prev.map(tab => 
+      tab.id === data.tabId ? { ...tab, ...data.updates } : tab
+    ))
+  }
+
+  const setupTabEventListeners = () => {
+    if (window.electronAPI) {
+      // 监听标签页创建事件
+      window.electronAPI.on('tab-created', handleTabCreated)
+
+      // 监听标签页关闭事件
+      window.electronAPI.on('tab-closed', handleTabClosed)
+
+      // 监听标签页更新事件
+      window.electronAPI.on('tab-updated', handleTabUpdated)
+    }
+  }
 
   const loadWebsiteCategories = async () => {
     try {
@@ -39,23 +94,20 @@ const WebsiteView: React.FC = () => {
 
   const handleCategoryChange = (categoryId: string) => {
     setSelectedCategory(categoryId)
-    setSelectedWebsite('') // 重置选中的网站
   }
 
-  const handleWebsiteChange = async (website: WebsiteInfo) => {
+  const handleWebsiteSelect = async (website: WebsiteInfo) => {
     try {
-      setSelectedWebsite(website.id)
-      
-      // 调用网站切换功能
-      if (window.electronAPI && window.electronAPI.switchSite) {
-        await window.electronAPI.switchSite(website.url)
-        message.success(`已切换到 ${website.name}`)
+      // 创建新标签页
+      const result = await window.electronAPI.createTab(website)
+      if (result?.success) {
+        message.success(`已为 ${website.name} 创建新标签页`)
       } else {
-        message.warning('网站切换功能暂不可用')
+        message.error(result?.error || '创建标签页失败')
       }
     } catch (error) {
-      console.error('Failed to switch website:', error)
-      message.error('切换网站失败')
+      console.error('Failed to create tab:', error)
+      message.error('创建标签页失败')
     }
   }
 
@@ -97,8 +149,8 @@ const WebsiteView: React.FC = () => {
       
       <WebsiteList
         websites={getCurrentCategoryWebsites()}
-        selectedWebsite={selectedWebsite}
-        onWebsiteChange={handleWebsiteChange}
+        openTabs={openTabs}
+        onWebsiteSelect={handleWebsiteSelect}
         loading={loading}
       />
       
