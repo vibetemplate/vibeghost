@@ -17,7 +17,7 @@ class MainApp {
     this.windowManager = new WindowManager()
     this.proxyManager = new ProxyManager()
     this.configManager = new ConfigManager()
-    this.injectionManager = new InjectionManager()
+    this.injectionManager = InjectionManager.getInstance()
     this.promptManager = new PromptManager()
 
     this.initialize()
@@ -78,7 +78,7 @@ class MainApp {
           return await this.injectionManager.injectPrompt(mainView, prompt)
         }
         return { success: false, error: '主视图未找到' }
-      } catch (error) {
+      } catch (error: any) {
         console.error('注入提示词失败:', error)
         return { success: false, error: error.message }
       }
@@ -91,7 +91,7 @@ class MainApp {
         const prompts = await this.promptManager.getPrompts()
         console.log('主进程返回提示词数量:', prompts.length)
         return prompts
-      } catch (error) {
+      } catch (error: any) {
         console.error('获取提示词失败:', error)
         return []
       }
@@ -111,7 +111,7 @@ class MainApp {
           await this.proxyManager.disableProxy()
         }
         return { success: true }
-      } catch (error) {
+      } catch (error: any) {
         console.error('更新代理配置失败:', error)
         return { success: false, error: error.message }
       }
@@ -131,7 +131,7 @@ class MainApp {
           return { success: true }
         }
         return { success: false, error: '主视图未找到' }
-      } catch (error) {
+      } catch (error: any) {
         console.error('切换网站失败:', error)
         return { success: false, error: error.message }
       }
@@ -141,7 +141,7 @@ class MainApp {
       try {
         await this.configManager.updateSiteConfig(config)
         return { success: true }
-      } catch (error) {
+      } catch (error: any) {
         console.error('更新网站配置失败:', error)
         return { success: false, error: error.message }
       }

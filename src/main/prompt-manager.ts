@@ -377,7 +377,7 @@ export class PromptManager {
           nodes.splice(i, 1)
           return true
         }
-        if (nodes[i].children && deleteNode(nodes[i].children)) {
+        if (nodes[i].children && deleteNode(nodes[i].children!)) {
           return true
         }
       }

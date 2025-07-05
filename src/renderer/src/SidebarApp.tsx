@@ -11,6 +11,7 @@ const SidebarApp: React.FC = () => {
   const [searchValue, setSearchValue] = useState('')
   const [selectedPrompt, setSelectedPrompt] = useState<PromptNode | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
   useEffect(() => {
     console.log('SidebarApp 组件加载')
@@ -23,11 +24,23 @@ const SidebarApp: React.FC = () => {
         loadPrompts()
       } else {
         console.error('electronAPI 未找到')
+        setError('electronAPI 未找到，请重新启动应用')
         setLoading(false)
       }
     }, 100)
     
-    return () => clearTimeout(initTimeout)
+    // 10秒后如果还在加载，显示错误
+    const timeoutError = setTimeout(() => {
+      if (loading) {
+        setError('加载超时，请重新启动应用')
+        setLoading(false)
+      }
+    }, 10000)
+    
+    return () => {
+      clearTimeout(initTimeout)
+      clearTimeout(timeoutError)
+    }
   }, [])
 
   const loadPrompts = async () => {
@@ -45,6 +58,7 @@ const SidebarApp: React.FC = () => {
       setLoading(false)
     } catch (error) {
       console.error('加载提示词失败:', error)
+      setError('加载提示词失败: ' + error.message)
       setPrompts([])
       setLoading(false)
     }
@@ -183,20 +197,79 @@ const SidebarApp: React.FC = () => {
           justifyContent: 'center', 
           alignItems: 'center', 
           height: '100%',
-          gap: '16px'
+          gap: '16px',
+          padding: '20px'
         }}>
           <Spin size="large" />
-          <div style={{ fontSize: '14px', color: '#666' }}>
+          <div style={{ fontSize: '14px', color: '#666', textAlign: 'center' }}>
             正在加载提示词库...
           </div>
-          <Button 
-            type="link" 
-            size="small" 
-            onClick={loadPrompts}
-            style={{ fontSize: '12px' }}
-          >
-            重新加载
-          </Button>
+          {error && (
+            <div style={{ fontSize: '12px', color: '#ff4d4f', textAlign: 'center' }}>
+              {error}
+            </div>
+          )}
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <Button 
+              type="primary" 
+              size="small" 
+              onClick={loadPrompts}
+              style={{ fontSize: '12px' }}
+            >
+              重新加载
+            </Button>
+            <Button 
+              size="small" 
+              onClick={() => window.location.reload()}
+              style={{ fontSize: '12px' }}
+            >
+              刷新页面
+            </Button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (error && !loading) {
+    return (
+      <div className="sidebar-container">
+        <div style={{ 
+          display: 'flex', 
+          flexDirection: 'column',
+          justifyContent: 'center', 
+          alignItems: 'center', 
+          height: '100%',
+          gap: '16px',
+          padding: '20px'
+        }}>
+          <div style={{ fontSize: '16px', color: '#ff4d4f', textAlign: 'center' }}>
+            ⚠️ 加载失败
+          </div>
+          <div style={{ fontSize: '12px', color: '#666', textAlign: 'center' }}>
+            {error}
+          </div>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <Button 
+              type="primary" 
+              size="small" 
+              onClick={() => {
+                setError('')
+                setLoading(true)
+                loadPrompts()
+              }}
+              style={{ fontSize: '12px' }}
+            >
+              重试
+            </Button>
+            <Button 
+              size="small" 
+              onClick={() => window.location.reload()}
+              style={{ fontSize: '12px' }}
+            >
+              刷新页面
+            </Button>
+          </div>
         </div>
       </div>
     )

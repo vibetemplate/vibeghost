@@ -109,7 +109,7 @@ export class ProxyManager {
             return true
           }
         } catch (error) {
-          console.log(`测试URL失败: ${url}`, error.message)
+          console.log(`测试URL失败: ${url}`, (error as any).message)
           continue
         }
       }
