@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>调试提示词库</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .debug-panel {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    .status {
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+    .success { background: #f6ffed; border: 1px solid #b7eb8f; color: #52c41a; }
+    .error { background: #fff2f0; border: 1px solid #ffccc7; color: #ff4d4f; }
+    .warning { background: #fffbe6; border: 1px solid #ffe58f; color: #faad14; }
+    .info { background: #f0f5ff; border: 1px solid #adc6ff; color: #1890ff; }
+    button {
+      background: #1890ff;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    button:hover { background: #40a9ff; }
+    pre {
+      background: #f8f8f8;
+      padding: 15px;
+      border-radius: 4px;
+      overflow-x: auto;
+      font-size: 12px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="debug-panel">
+    <h2>🔧 VibeGhost 调试面板</h2>
+    
+    <div class="status info" id="status">
+      正在初始化调试面板...
+    </div>
+    
+    <div>
+      <button onclick="checkElectronAPI()">检查 ElectronAPI</button>
+      <button onclick="testGetPrompts()">测试获取提示词</button>
+      <button onclick="testInjectPrompt()">测试注入提示词</button>
+      <button onclick="openDevTools()">打开开发者工具</button>
+      <button onclick="reloadSidebar()">重新加载侧边栏</button>
+      <button onclick="loadReactApp()">加载React应用</button>
+    </div>
+    
+    <div id="results"></div>
+  </div>
+
+  <script>
+    let logContainer = document.getElementById('results');
+    let statusContainer = document.getElementById('status');
+    
+    function log(message, type = 'info') {
+      console.log(message);
+      const div = document.createElement('div');
+      div.className = `status ${type}`;
+      div.innerHTML = `[${new Date().toLocaleTimeString()}] ${message}`;
+      logContainer.appendChild(div);
+      logContainer.scrollTop = logContainer.scrollHeight;
+    }
+    
+    function updateStatus(message, type = 'info') {
+      statusContainer.className = `status ${type}`;
+      statusContainer.textContent = message;
+    }
+    
+    // 初始化检查
+    window.addEventListener('DOMContentLoaded', () => {
+      log('调试面板已加载', 'success');
+      checkElectronAPI();
+    });
+    
+    function checkElectronAPI() {
+      if (window.electronAPI) {
+        updateStatus('✅ ElectronAPI 可用', 'success');
+        log('ElectronAPI 方法: ' + Object.keys(window.electronAPI).join(', '), 'info');
+      } else {
+        updateStatus('❌ ElectronAPI 不可用', 'error');
+        log('ElectronAPI 不存在，这是问题的根源', 'error');
+      }
+    }
+    
+    async function testGetPrompts() {
+      if (!window.electronAPI) {
+        log('ElectronAPI 不存在，无法测试', 'error');
+        return;
+      }
+      
+      try {
+        log('开始测试 getPrompts...', 'info');
+        const prompts = await window.electronAPI.getPrompts();
+        log('✅ getPrompts 成功，获取到 ' + (prompts ? prompts.length : 0) + ' 个提示词', 'success');
+        
+        if (prompts && prompts.length > 0) {
+          const pre = document.createElement('pre');
+          pre.textContent = JSON.stringify(prompts, null, 2);
+          logContainer.appendChild(pre);
+        }
+      } catch (error) {
+        log('❌ getPrompts 失败: ' + error.message, 'error');
+      }
+    }
+    
+    async function testInjectPrompt() {
+      if (!window.electronAPI) {
+        log('ElectronAPI 不存在，无法测试', 'error');
+        return;
+      }
+      
+      try {
+        const testPrompt = '这是一个测试提示词';
+        log('开始测试注入提示词...', 'info');
+        const result = await window.electronAPI.injectPrompt(testPrompt);
+        if (result.success) {
+          log('✅ 提示词注入成功', 'success');
+        } else {
+          log('❌ 提示词注入失败: ' + result.error, 'error');
+        }
+      } catch (error) {
+        log('❌ 注入测试失败: ' + error.message, 'error');
+      }
+    }
+    
+    function openDevTools() {
+      if (window.electronAPI && window.electronAPI.toggleSidebarDevTools) {
+        window.electronAPI.toggleSidebarDevTools();
+        log('开发者工具已打开', 'info');
+      } else {
+        log('无法打开开发者工具', 'error');
+      }
+    }
+    
+    function reloadSidebar() {
+      if (window.electronAPI && window.electronAPI.reloadSidebar) {
+        window.electronAPI.reloadSidebar();
+        log('侧边栏重新加载中...', 'info');
+      } else {
+        log('无法重新加载侧边栏', 'error');
+      }
+    }
+    
+    function loadReactApp() {
+      log('正在加载React应用...', 'info');
+      window.location.href = 'http://localhost:8174/sidebar.html';
+    }
+    
+    // 错误处理
+    window.addEventListener('error', (e) => {
+      log('页面错误: ' + e.message, 'error');
+    });
+    
+    // 每5秒检查一次状态
+    setInterval(() => {
+      if (!window.electronAPI) {
+        updateStatus('⚠️ ElectronAPI 仍然不可用', 'warning');
+      }
+    }, 5000);
+  </script>
+</body>
+</html>

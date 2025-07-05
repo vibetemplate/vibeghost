@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>提示词库</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #fafafa;
+      height: 100vh;
+      overflow: hidden;
+    }
+    
+    #root {
+      height: 100vh;
+      width: 100vw;
+    }
+    
+    .loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-size: 14px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div id="root">
+    <div class="loading">
+      正在加载提示词库...
+    </div>
+  </div>
+  <script type="module" src="./src/sidebar.tsx"></script>
+  <!-- 添加错误处理 -->
+  <script>
+    window.addEventListener('error', (e) => {
+      console.error('页面错误:', e.error);
+      document.getElementById('root').innerHTML = '<div style="padding: 20px; color: red;">加载失败: ' + e.message + '</div>';
+    });
+    
+    // 等待一段时间后检查React是否加载
+    setTimeout(() => {
+      const loadingDiv = document.querySelector('.loading');
+      if (loadingDiv && loadingDiv.style.display !== 'none') {
+        console.warn('React应用可能未正确加载');
+      }
+    }, 5000);
+  </script>
+</body>
+</html>

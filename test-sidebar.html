@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>测试侧边栏</title>
+</head>
+<body>
+    <h3>测试 electronAPI</h3>
+    <div id="status">正在检查...</div>
+    <button onclick="testAPI()">测试获取提示词</button>
+    <div id="result"></div>
+
+    <script>
+        function log(msg) {
+            console.log(msg);
+            document.getElementById('status').innerHTML += '<br>' + msg;
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            log('页面加载完成');
+            log('electronAPI 存在: ' + !!window.electronAPI);
+            if (window.electronAPI) {
+                log('electronAPI 方法: ' + Object.keys(window.electronAPI).join(', '));
+            }
+        });
+
+        async function testAPI() {
+            if (!window.electronAPI) {
+                log('错误: electronAPI 不存在');
+                return;
+            }
+            
+            try {
+                log('开始调用 getPrompts...');
+                const prompts = await window.electronAPI.getPrompts();
+                log('获取到提示词数量: ' + (prompts ? prompts.length : 0));
+                document.getElementById('result').innerHTML = '<pre>' + JSON.stringify(prompts, null, 2) + '</pre>';
+            } catch (error) {
+                log('错误: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>
