@@ -60,4 +60,26 @@
 
 .error-container {
   color: #ff4d4f;
+}
+
+/* 日志面板相关样式 */
+.main-content.with-log-panel {
+  padding-bottom: 0;
+}
+
+.log-panel-toggle {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+}
+
+/* 确保日志面板不与底部工具栏重叠 */
+.sidebar-app-container {
+  position: relative;
+}
+
+.sidebar-app-container .log-panel-toggle {
+  bottom: 60px; /* FooterToolbar的高度 */
 } 

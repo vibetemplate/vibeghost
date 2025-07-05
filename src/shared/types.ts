@@ -66,3 +66,45 @@ export interface InjectionResult {
   error?: string;
   message?: string;
 }
+
+// 网站信息接口
+export interface WebsiteInfo {
+  id: string;
+  name: string;
+  url: string;
+  description?: string;
+  icon?: string;
+  category: string;
+  tags?: string[];
+  isActive?: boolean;
+}
+
+// 网站分类接口
+export interface WebsiteCategory {
+  id: string;
+  name: string;
+  displayName: string;
+  description?: string;
+  websites: WebsiteInfo[];
+}
+
+// 日志条目接口
+export interface LogEntry {
+  id: string;
+  timestamp: Date;
+  level: 'info' | 'warn' | 'error' | 'debug';
+  category: string;
+  message: string;
+  details?: any;
+}
+
+// 应用设置接口扩展
+export interface AppSettings {
+  theme: 'light' | 'dark' | 'system';
+  language: 'zh-CN' | 'en-US';
+  logLevel: 'info' | 'warn' | 'error' | 'debug';
+  maxLogEntries: number;
+  autoSaveConfig: boolean;
+  showLogPanel: boolean;
+  defaultCategory: string;
+}

@@ -2,6 +2,8 @@ import React, { useState } from 'react'
 import { Modal } from 'antd'
 import Header from './components/Header'
 import FooterToolbar from './components/FooterToolbar'
+import LogPanel from './components/LogPanel'
+import WebsiteView from './views/WebsiteView'
 import ProjectsView from './views/ProjectsView'
 import PromptsView from './views/PromptsView'
 import ConfigView from './views/ConfigView'
@@ -9,7 +11,8 @@ import ConfigView from './views/ConfigView'
 import './SidebarApp.css'
 
 const SidebarApp: React.FC = () => {
-  const [activeView, setActiveView] = useState('projects')
+  const [activeView, setActiveView] = useState('websites')
+  const [showLogPanel, setShowLogPanel] = useState(false)
 
   const handleSiteChange = async (url: string) => {
     try {
@@ -41,6 +44,8 @@ const SidebarApp: React.FC = () => {
 
   const renderActiveView = () => {
     switch (activeView) {
+      case 'websites':
+        return <WebsiteView />
       case 'projects':
         return <ProjectsView />
       case 'prompts':
@@ -48,19 +53,39 @@ const SidebarApp: React.FC = () => {
       case 'config':
         return <ConfigView />
       default:
-        return <ProjectsView />
+        return <WebsiteView />
     }
+  }
+
+  const handleToggleLogPanel = () => {
+    setShowLogPanel(!showLogPanel)
   }
 
   return (
     <div className="sidebar-app-container">
       <Header onSiteChange={handleSiteChange} onRefresh={handleRefresh} />
-      <main className="main-content">{renderActiveView()}</main>
+      <main className={`main-content ${showLogPanel ? 'with-log-panel' : ''}`}>
+        {renderActiveView()}
+        {showLogPanel && (
+          <LogPanel 
+            isVisible={showLogPanel} 
+            onToggle={handleToggleLogPanel}
+          />
+        )}
+      </main>
       <FooterToolbar
         activeView={activeView}
         onViewChange={setActiveView}
         onAction={handleAction}
       />
+      {!showLogPanel && (
+        <div className="log-panel-toggle">
+          <LogPanel 
+            isVisible={false} 
+            onToggle={handleToggleLogPanel}
+          />
+        </div>
+      )}
     </div>
   )
 }

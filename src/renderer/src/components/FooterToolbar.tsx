@@ -6,7 +6,8 @@ import {
   SettingOutlined,
   CloudServerOutlined,
   RocketOutlined,
-  ClearOutlined
+  ClearOutlined,
+  GlobalOutlined
 } from '@ant-design/icons'
 import './FooterToolbar.css'
 
@@ -24,6 +25,7 @@ const FooterToolbar: React.FC<FooterToolbarProps> = ({ activeView, onViewChange,
   ]
 
   const bottomViews = [
+    { key: 'websites', title: '网站', icon: <GlobalOutlined /> },
     { key: 'projects', title: '项目', icon: <AppstoreOutlined /> },
     { key: 'prompts', title: '提示词', icon: <ProfileOutlined /> },
     { key: 'config', title: '配置', icon: <SettingOutlined /> }
