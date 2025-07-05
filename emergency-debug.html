@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>应急调试</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #f0f0f0; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 4px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        button { padding: 8px 16px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 4px; overflow: auto; }
+    </style>
+</head>
+<body>
+    <h1>🚨 VibeGhost 应急调试模式</h1>
+    
+    <div id="status" class="status info">正在初始化...</div>
+    
+    <div>
+        <button onclick="testBasics()">测试基础功能</button>
+        <button onclick="testPrompts()">测试提示词</button>
+        <button onclick="testInjection()">测试注入</button>
+        <button onclick="loadReactApp()">加载React应用</button>
+        <button onclick="restartSidebar()">重启侧边栏</button>
+    </div>
+    
+    <div id="output"></div>
+
+    <script>
+        let output = document.getElementById('output');
+        let status = document.getElementById('status');
+        
+        function log(message, type = 'info') {
+            console.log(message);
+            const div = document.createElement('div');
+            div.className = `status ${type}`;
+            div.innerHTML = `[${new Date().toLocaleTimeString()}] ${message}`;
+            output.appendChild(div);
+            output.scrollTop = output.scrollHeight;
+        }
+        
+        function setStatus(message, type = 'info') {
+            status.className = `status ${type}`;
+            status.textContent = message;
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            testBasics();
+        });
+        
+        async function testBasics() {
+            log('🔍 开始基础测试...', 'info');
+            
+            if (window.electronAPI) {
+                setStatus('✅ ElectronAPI 可用', 'success');
+                log('✅ ElectronAPI 存在', 'success');
+                log('📋 可用方法: ' + Object.keys(window.electronAPI).join(', '), 'info');
+            } else {
+                setStatus('❌ ElectronAPI 不可用', 'error');
+                log('❌ ElectronAPI 不存在', 'error');
+                return;
+            }
+        }
+        
+        async function testPrompts() {
+            if (!window.electronAPI) {
+                log('❌ ElectronAPI 不可用', 'error');
+                return;
+            }
+            
+            try {
+                log('🔍 测试获取提示词...', 'info');
+                const prompts = await window.electronAPI.getPrompts();
+                log('✅ 获取提示词成功，数量: ' + (prompts ? prompts.length : 0), 'success');
+                
+                if (prompts && prompts.length > 0) {
+                    const pre = document.createElement('pre');
+                    pre.textContent = JSON.stringify(prompts, null, 2);
+                    pre.style.maxHeight = '200px';
+                    output.appendChild(pre);
+                }
+            } catch (error) {
+                log('❌ 获取提示词失败: ' + error.message, 'error');
+            }
+        }
+        
+        async function testInjection() {
+            if (!window.electronAPI) {
+                log('❌ ElectronAPI 不可用', 'error');
+                return;
+            }
+            
+            try {
+                const testPrompt = '测试注入：这是一个简单的测试提示词';
+                log('🔍 测试注入功能...', 'info');
+                const result = await window.electronAPI.injectPrompt(testPrompt);
+                
+                if (result.success) {
+                    log('✅ 注入测试成功: ' + result.message, 'success');
+                } else {
+                    log('❌ 注入测试失败: ' + result.error, 'error');
+                }
+            } catch (error) {
+                log('❌ 注入测试异常: ' + error.message, 'error');
+            }
+        }
+        
+        function loadReactApp() {
+            log('🔄 尝试加载React应用...', 'info');
+            // 尝试多个可能的端口
+            const ports = ['8174', '8175', '8176', '8177'];
+            let tried = 0;
+            
+            function tryPort(port) {
+                const url = `http://localhost:${port}/sidebar.html`;
+                log(`🔍 尝试端口 ${port}...`, 'info');
+                
+                fetch(url)
+                    .then(response => {
+                        if (response.ok) {
+                            log(`✅ 找到React应用在端口 ${port}`, 'success');
+                            window.location.href = url;
+                        } else {
+                            throw new Error('Not found');
+                        }
+                    })
+                    .catch(() => {
+                        tried++;
+                        if (tried < ports.length) {
+                            tryPort(ports[tried]);
+                        } else {
+                            log('❌ 所有端口都无法访问React应用', 'error');
+                        }
+                    });
+            }
+            
+            tryPort(ports[0]);
+        }
+        
+        function restartSidebar() {
+            log('🔄 重启侧边栏...', 'info');
+            window.location.reload();
+        }
+        
+        // 错误处理
+        window.addEventListener('error', (e) => {
+            log('💥 页面错误: ' + e.message, 'error');
+        });
+    </script>
+</body>
+</html>

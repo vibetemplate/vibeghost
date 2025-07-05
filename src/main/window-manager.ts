@@ -115,7 +115,8 @@ export class WindowManager {
     try {
       // 加载侧边栏内容（提示词库应用）
       if (process.env.NODE_ENV === 'development') {
-        await this.sideView.webContents.loadURL('http://localhost:8174/sidebar.html')
+        // 使用应急调试面板
+        await this.sideView.webContents.loadFile(join(__dirname, '..', '..', 'emergency-debug.html'))
       } else {
         await this.sideView.webContents.loadFile(
           join(__dirname, '../renderer/sidebar.html')

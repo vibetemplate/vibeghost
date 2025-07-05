@@ -127,13 +127,14 @@ export abstract class BaseAdapter implements IAIAdapter {
    */
   protected generateInjectionScript(prompt: string): string {
     const selectors = this.getSelectors()
-    const escapedPrompt = prompt.replace(/'/g, "\\'").replace(/\n/g, '\\n')
-    
+    const promptJson = JSON.stringify(prompt)
+
     return `
       (function() {
         console.log('${this.platformName} 注入开始...');
         
         const selectors = ${JSON.stringify(selectors)};
+        const prompt = ${promptJson};
         let targetElement = null;
         
         // 逐个尝试选择器
@@ -192,7 +193,7 @@ export abstract class BaseAdapter implements IAIAdapter {
         // 清空现有内容并注入新内容
         if (targetElement.tagName === 'TEXTAREA' || targetElement.tagName === 'INPUT') {
           targetElement.value = '';
-          targetElement.value = '${escapedPrompt}';
+          targetElement.value = prompt;
           
           // 触发各种事件确保框架能检测到变化
           targetElement.dispatchEvent(new Event('input', { bubbles: true }));
@@ -200,7 +201,7 @@ export abstract class BaseAdapter implements IAIAdapter {
           targetElement.dispatchEvent(new Event('keyup', { bubbles: true }));
           targetElement.dispatchEvent(new Event('paste', { bubbles: true }));
         } else if (targetElement.contentEditable === 'true') {
-          targetElement.textContent = '${escapedPrompt}';
+          targetElement.textContent = prompt;
           targetElement.dispatchEvent(new Event('input', { bubbles: true }));
           targetElement.dispatchEvent(new Event('DOMCharacterDataModified', { bubbles: true }));
         }
