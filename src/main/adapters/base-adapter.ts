@@ -190,20 +190,21 @@ export abstract class BaseAdapter implements IAIAdapter {
         
         console.log('开始注入到元素:', targetElement.tagName);
         
-        // 清空现有内容并注入新内容
+        // 关键修复：使用原生setter来触发React的状态更新
         if (targetElement.tagName === 'TEXTAREA' || targetElement.tagName === 'INPUT') {
-          targetElement.value = '';
-          targetElement.value = prompt;
-          
-          // 触发各种事件确保框架能检测到变化
-          targetElement.dispatchEvent(new Event('input', { bubbles: true }));
-          targetElement.dispatchEvent(new Event('change', { bubbles: true }));
-          targetElement.dispatchEvent(new Event('keyup', { bubbles: true }));
-          targetElement.dispatchEvent(new Event('paste', { bubbles: true }));
+          const nativeTextareaSetter = Object.getOwnPropertyDescriptor(
+            window.HTMLTextAreaElement.prototype,
+            'value'
+          ).set;
+          nativeTextareaSetter.call(targetElement, prompt);
+
+          // 触发input事件，确保框架能检测到变化
+          const event = new Event('input', { bubbles: true, cancelable: true });
+          targetElement.dispatchEvent(event);
         } else if (targetElement.contentEditable === 'true') {
           targetElement.textContent = prompt;
-          targetElement.dispatchEvent(new Event('input', { bubbles: true }));
-          targetElement.dispatchEvent(new Event('DOMCharacterDataModified', { bubbles: true }));
+          const event = new Event('input', { bubbles: true, cancelable: true });
+          targetElement.dispatchEvent(event);
         }
         
         // 聚焦并设置光标位置

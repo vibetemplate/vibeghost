@@ -30,18 +30,21 @@ class MainApp {
 
   private setupAppEvents() {
     app.whenReady().then(() => {
+      // 忽略证书相关错误，修复开发环境中的SSL问题
+      app.commandLine.appendSwitch('ignore-certificate-errors');
+      
       this.createMainWindow()
+
+      app.on('activate', () => {
+        if (BrowserWindow.getAllWindows().length === 0) {
+          this.windowManager.createMainWindow()
+        }
+      })
     })
 
     app.on('window-all-closed', () => {
       if (process.platform !== 'darwin') {
         app.quit()
-      }
-    })
-
-    app.on('activate', () => {
-      if (BrowserWindow.getAllWindows().length === 0) {
-        this.createMainWindow()
       }
     })
   }

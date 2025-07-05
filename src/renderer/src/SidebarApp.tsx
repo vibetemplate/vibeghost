@@ -10,57 +10,37 @@ const SidebarApp: React.FC = () => {
   const [prompts, setPrompts] = useState<PromptNode[]>([])
   const [searchValue, setSearchValue] = useState('')
   const [selectedPrompt, setSelectedPrompt] = useState<PromptNode | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  const [loadState, setLoadState] = useState({
+    status: 'loading', // 'loading', 'success', 'error'
+    message: ''
+  })
 
   useEffect(() => {
-    console.log('SidebarApp 组件加载')
-    console.log('window.electronAPI 是否存在:', !!window.electronAPI)
-    
-    // 添加延迟确保electronAPI已经注入
-    const initTimeout = setTimeout(() => {
-      if (window.electronAPI) {
-        console.log('electronAPI 方法:', Object.keys(window.electronAPI))
-        loadPrompts()
-      } else {
-        console.error('electronAPI 未找到')
-        setError('electronAPI 未找到，请重新启动应用')
-        setLoading(false)
-      }
-    }, 100)
-    
-    // 10秒后如果还在加载，显示错误
-    const timeoutError = setTimeout(() => {
-      if (loading) {
-        setError('加载超时，请重新启动应用')
-        setLoading(false)
-      }
-    }, 10000)
-    
-    return () => {
-      clearTimeout(initTimeout)
-      clearTimeout(timeoutError)
-    }
+    loadPrompts()
   }, [])
 
   const loadPrompts = async () => {
+    setLoadState({ status: 'loading', message: '' })
     try {
+      if (!window.electronAPI) {
+        throw new Error('electronAPI 未找到，请重新启动应用')
+      }
+      
       console.log('开始加载提示词...')
       const promptsData = await window.electronAPI.getPrompts()
       console.log('提示词数据:', promptsData)
+      
       if (promptsData && Array.isArray(promptsData)) {
         setPrompts(promptsData)
+        setLoadState({ status: 'success', message: '' })
         console.log('提示词加载成功，数量:', promptsData.length)
       } else {
-        console.error('提示词数据格式错误:', promptsData)
-        setPrompts([])
+        throw new Error('提示词数据格式错误')
       }
-      setLoading(false)
-    } catch (error) {
+    } catch (error: any) {
       console.error('加载提示词失败:', error)
-      setError('加载提示词失败: ' + error.message)
+      setLoadState({ status: 'error', message: `加载提示词失败: ${error.message}` })
       setPrompts([])
-      setLoading(false)
     }
   }
 
@@ -188,7 +168,7 @@ const SidebarApp: React.FC = () => {
     )
   }
 
-  if (loading) {
+  if (loadState.status === 'loading') {
     return (
       <div className="sidebar-container">
         <div style={{ 
@@ -204,34 +184,12 @@ const SidebarApp: React.FC = () => {
           <div style={{ fontSize: '14px', color: '#666', textAlign: 'center' }}>
             正在加载提示词库...
           </div>
-          {error && (
-            <div style={{ fontSize: '12px', color: '#ff4d4f', textAlign: 'center' }}>
-              {error}
-            </div>
-          )}
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <Button 
-              type="primary" 
-              size="small" 
-              onClick={loadPrompts}
-              style={{ fontSize: '12px' }}
-            >
-              重新加载
-            </Button>
-            <Button 
-              size="small" 
-              onClick={() => window.location.reload()}
-              style={{ fontSize: '12px' }}
-            >
-              刷新页面
-            </Button>
-          </div>
         </div>
       </div>
     )
   }
 
-  if (error && !loading) {
+  if (loadState.status === 'error') {
     return (
       <div className="sidebar-container">
         <div style={{ 
@@ -247,17 +205,13 @@ const SidebarApp: React.FC = () => {
             ⚠️ 加载失败
           </div>
           <div style={{ fontSize: '12px', color: '#666', textAlign: 'center' }}>
-            {error}
+            {loadState.message}
           </div>
-          <div style={{ display: 'flex', gap: '8px' }}>
+          <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
             <Button 
               type="primary" 
               size="small" 
-              onClick={() => {
-                setError('')
-                setLoading(true)
-                loadPrompts()
-              }}
+              onClick={loadPrompts}
               style={{ fontSize: '12px' }}
             >
               重试
