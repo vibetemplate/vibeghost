@@ -1,6 +1,7 @@
 import { BrowserView } from 'electron'
 import { InjectionResult } from '../shared/types'
 import { AdapterFactory } from './adapters'
+import { WindowManager } from './window-manager'
 
 /**
  * 注入管理器
@@ -8,65 +9,82 @@ import { AdapterFactory } from './adapters'
  * 使用适配器模式支持多个AI平台
  */
 export class InjectionManager {
-  private static instance: InjectionManager
+  private windowManager: WindowManager
   private adapterFactory: AdapterFactory
 
-  private constructor() {
+  constructor(windowManager: WindowManager) {
     this.adapterFactory = AdapterFactory.getInstance()
-  }
-
-  static getInstance(): InjectionManager {
-    if (!InjectionManager.instance) {
-      InjectionManager.instance = new InjectionManager()
-    }
-    return InjectionManager.instance
+    this.windowManager = windowManager
+    console.log('🚀 InjectionManager 已启动')
   }
 
   /**
-   * 注入提示词到当前页面
+   * [PUBLIC] 将提示词内容注入到当前激活的标签页中
+   * 这是从主进程调用的唯一入口点
+   * @param prompt 要注入的提示词文本
+   */
+  public async injectPrompt(prompt: string): Promise<InjectionResult> {
+    const activeTab = this.windowManager.getTabManager()?.getActiveTab()
+    if (!activeTab) {
+      console.error('❌ 注入失败: 没有活动的标签页')
+      return { success: false, error: '没有活动的标签页' }
+    }
+
+    const tabManager = this.windowManager.getTabManager()
+    if (!tabManager) {
+      console.error('❌ 注入失败: TabManager 未初始化')
+      return { success: false, error: 'TabManager 未初始化' }
+    }
+    
+    const view = tabManager.getTabViewById(activeTab.id);
+    if (!view) {
+      console.error('❌ 注入失败: 找不到活动的BrowserView')
+      return { success: false, error: '找不到活动的BrowserView' }
+    }
+    
+    console.log(`✨ 准备向标签页 ${activeTab.title} 注入提示词...`)
+    return this._executeInjectionLogic(view, prompt);
+  }
+
+  /**
+   * [PRIVATE] 核心注入逻辑：注入提示词到指定页面
    * 自动检测AI平台并使用相应的适配器
    */
-  async injectPrompt(browserView: BrowserView, prompt: string, siteId?: string): Promise<InjectionResult> {
+  private async _executeInjectionLogic(browserView: BrowserView, prompt: string, siteId?: string): Promise<InjectionResult> {
     try {
-      console.log('开始注入提示词，长度:', prompt.length)
-      
-      // 等待页面加载完成
+      console.log('⏳ 等待页面加载完成...')
       await this.waitForPageLoad(browserView)
 
-      // 获取当前页面URL
       const currentUrl = browserView.webContents.getURL()
-      console.log('当前页面URL:', currentUrl)
+      console.log('🌍 当前页面URL:', currentUrl)
 
-      // 根据URL或指定的siteId选择适配器
       let adapter
       if (siteId) {
         adapter = this.adapterFactory.getAdapter(siteId)
-        console.log(`使用指定的适配器: ${siteId}`)
+        console.log(`👍 使用指定的适配器: ${siteId}`)
       } else {
         adapter = this.adapterFactory.getAdapterByUrl(currentUrl)
-        console.log(`自动检测适配器: ${adapter?.platformName || '未找到'}`)
+        console.log(`🤖 自动检测适配器: ${adapter?.platformName || '未找到'}`)
       }
       
       if (adapter) {
-        console.log(`使用 ${adapter.platformName} 适配器进行注入`)
+        console.log(`🚀 使用 ${adapter.platformName} 适配器进行注入`)
         
-        // 检查页面是否已准备好
         const isReady = await adapter.isPageReady(browserView)
         if (!isReady) {
-          console.log(`${adapter.platformName} 页面未准备好，等待加载...`)
-          // 等待一段时间后重试
+          console.log(`⏳ ${adapter.platformName} 页面未准备好，等待2秒后重试...`)
           await new Promise(resolve => setTimeout(resolve, 2000))
         }
         
         const result = await adapter.inject(browserView, prompt)
-        console.log(`${adapter.platformName} 注入结果:`, result)
+        console.log(`✅ ${adapter.platformName} 注入结果:`, result)
         return result
       } else {
-        console.log('未找到匹配的适配器，使用通用注入策略')
+        console.log('🤔 未找到匹配的适配器，使用通用注入策略')
         return await this.injectGeneric(browserView, prompt)
       }
     } catch (error: any) {
-      console.error('注入失败:', error)
+      console.error('❌ 核心注入逻辑失败:', error)
       return {
         success: false,
         error: error.message || '注入失败'

@@ -109,16 +109,11 @@ export class TabManager {
   }
 
   async createTab(website: WebsiteInfo): Promise<AITab> {
-    // 检查是否已经存在相同网站的标签页
-    const existingTab = this.findTabByWebsite(website.id, website.url)
-    if (existingTab) {
-      console.log(`🔄 检测到已存在的标签页，切换到: ${existingTab.websiteName} (${existingTab.id})`)
-      await this.switchToTab(existingTab.id)
-      return existingTab
-    }
-
-    if (this.tabs.size >= this.maxTabs) {
-      throw new Error(`最多只能打开${this.maxTabs}个标签页`)
+    // 强制单一标签页模式：创建前关闭所有旧标签页
+    if (this.tabs.size > 0) {
+      console.log('🔄 强制单页模式，正在关闭所有现有标签页...')
+      await this.closeAllTabs()
+      console.log('✅ 所有旧标签页已关闭')
     }
 
     console.log(`🆕 创建新标签页: ${website.name} (${website.url})`)
@@ -149,7 +144,7 @@ export class TabManager {
         contextIsolation: !isLocalFile, // 本地文件不需要上下文隔离
         webSecurity: !isLocalFile,     // 本地文件禁用web安全限制
         allowRunningInsecureContent: true,
-        partition: isLocalFile ? 'persist:local' : `persist:tab-${tabId}`,
+        partition: isLocalFile ? 'persist:local' : 'persist:vibeghost_sites',
         preload: isLocalFile ? join(__dirname, '../preload/preload.js') : undefined
       }
     })
@@ -181,7 +176,7 @@ export class TabManager {
     if (this.mainWindow) {
       const contentBounds = this.mainWindow.getContentBounds()
       const sidebarWidth = 350
-      const tabHostHeight = 72
+      const tabHostHeight = this.tabAreaBounds.y
 
       // 预先计算正确的布局bounds
       const correctBounds = {
@@ -398,15 +393,6 @@ export class TabManager {
       console.warn(`移除BrowserView时出错: ${error}`)
     }
 
-    try {
-      // 安全地销毁WebContents
-      if (!view.webContents.isDestroyed()) {
-        view.webContents.destroy()
-      }
-    } catch (error) {
-      console.warn(`销毁WebContents时出错: ${error}`)
-    }
-
     // 如果需要切换标签，在清理完成后进行
     if (needSwitchTab && nextTabId) {
       try {
@@ -464,7 +450,7 @@ export class TabManager {
     }
 
     const sidebarWidth = 350
-    const tabHostHeight = 72
+    const tabHostHeight = this.tabAreaBounds.y
 
     const bounds = {
       x: 0,
@@ -516,9 +502,9 @@ export class TabManager {
 
     const contentBounds = this.mainWindow.getContentBounds()
     const sidebarWidth = 350 // 与WindowManager保持一致
-    const tabHostHeight = 72 // TabHostApp实际高度：标签栏32px + 地址栏32px + 边距8px
+    const tabHostHeight = this.tabAreaBounds.y
 
-    // 确保BrowserView永远不会覆盖TabHostApp区域
+    // 确保BrowserView永远不会被TabHostApp区域覆盖
     const bounds = {
       x: 0, // 从左边开始
       y: tabHostHeight, // 从TabHostApp下方开始，留足间距
@@ -643,6 +629,10 @@ export class TabManager {
     return this.tabs.get(tabId) || null
   }
 
+  getTabViewById(tabId: string): BrowserView | null {
+    return this.tabViews.get(tabId) || null
+  }
+
   async navigateTab(tabId: string, url: string): Promise<void> {
     const view = this.tabViews.get(tabId)
     if (!view) {
@@ -693,7 +683,7 @@ export class TabManager {
   private verifyAndFixLayout(): void {
     if (!this.mainWindow) return
 
-    const tabHostHeight = 72
+    const tabHostHeight = this.tabAreaBounds.y
     const sidebarWidth = 350
     let fixedCount = 0
 
@@ -789,7 +779,7 @@ export class TabManager {
 
     const contentBounds = this.mainWindow.getContentBounds()
     const sidebarWidth = 350
-    const tabHostHeight = 72
+    const tabHostHeight = this.tabAreaBounds.y
     
     const correctBounds = {
       x: 0,

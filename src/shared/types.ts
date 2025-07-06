@@ -159,3 +159,15 @@ export interface TabIPCEvents {
   'tab-updated': { tabId: string; updates: Partial<AITab> };
   'navigation-state-changed': { tabId: string; state: BrowserNavigationState };
 }
+
+export interface ElectronAPI {
+  getTabs: () => Promise<{ tabs: AITab[], activeTabId: string | null }>
+  createTab: (website: WebsiteInfo) => Promise<{ success: boolean, tab?: AITab, error?: string }>
+  closeTab: (tabId: string) => Promise<{ success: boolean, error?: string }>
+  switchTab: (tabId: string) => Promise<{ success: boolean, error?: string }>
+  navigateTab: (tabId: string, action: 'back' | 'forward' | 'reload' | 'stop' | 'navigate', url?: string) => Promise<{ success: boolean, error?: string }>
+  on: (channel: string, listener: (...args: any[]) => void) => void
+  off: (channel: string, listener: (...args: any[]) => void) => void
+  getPrompts: () => Promise<any>
+  injectPrompt: (prompt: string) => Promise<{ success: boolean, error?: string }>
+}

@@ -8,7 +8,7 @@ export class WindowManager {
   private sideView: BrowserView | null = null
   private tabManager: TabManager | null = null
   private sidebarWidth = 350
-  private tabBarHeight = 72 // 实际高度：标签页栏32px + 工具栏32px + 边距8px
+  private tabBarHeight = 0 // 实际高度：标签页栏32px + 工具栏32px + 边距8px
 
   async createMainWindow(): Promise<BrowserWindow> {
     const { width, height } = screen.getPrimaryDisplay().workAreaSize
@@ -75,6 +75,13 @@ export class WindowManager {
       }
     })
 
+    await this.setupViews(this.mainWindow)
+
+    // 延迟创建默认标签页，确保所有组件都已初始化
+    setTimeout(() => {
+      this.createDefaultTab()
+    }, 1000)
+
     return this.mainWindow
   }
 
@@ -123,11 +130,6 @@ export class WindowManager {
       this.setupViewEvents()
       
       console.log('✅ WindowManager视图设置完成')
-      
-      // 延迟创建默认标签页，确保所有组件都已初始化
-      setTimeout(() => {
-        this.createDefaultTab()
-      }, 1000)
       
     } catch (error) {
       console.error('❌ 设置WindowManager视图失败:', error)
@@ -205,13 +207,10 @@ export class WindowManager {
   }
 
   private setupViewEvents(): void {
-    if (!this.sideView) return
+    if (!this.mainWindow || !this.sideView || !this.tabManager) return
 
     this.sideView.webContents.on('dom-ready', () => {
-      console.log('侧边栏加载完成')
-      if (process.env.NODE_ENV === 'development') {
-        this.sideView?.webContents.openDevTools({ mode: 'detach' })
-      }
+      console.log('✅ 侧边栏内容加载完成')
     })
 
     this.sideView.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
