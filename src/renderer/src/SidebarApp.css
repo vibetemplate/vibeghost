@@ -47,6 +47,15 @@
   width: 100%;
 }
 
+.tree-node-title button {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.tree-node-title:hover button {
+  opacity: 1;
+}
+
 .loading-container,
 .error-container,
 .empty-state {
@@ -82,4 +91,47 @@
 
 .sidebar-app-container .log-panel-toggle {
   bottom: 60px; /* FooterToolbar的高度 */
+}
+
+.ant-tree-node-content-wrapper {
+  display: flex !important;
+  align-items: center;
+}
+
+.ant-tree-iconEle {
+  font-size: 14px;
+  margin-right: 4px;
+}
+
+/* Prompt detail styles */
+.prompt-detail-card {
+  background: #ffffff;
+  border: 1px solid #f0f0f0;
+  border-radius: 4px;
+  padding: 8px 12px;
+  max-height: 200px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.prompt-detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.65);
+}
+
+.prompt-detail-actions button {
+  margin-left: 4px;
+}
+
+.prompt-detail-body {
+  flex: 1;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+  font-size: 12px;
+  line-height: 1.4;
 } 

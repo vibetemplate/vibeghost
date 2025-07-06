@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react'
-import { Tree, Input, Button, Empty, Spin, Select, Divider } from 'antd'
-import { FileTextOutlined, FolderOutlined, CopyOutlined } from '@ant-design/icons'
+import { Tree, Input, Button, Empty, Spin, Select, Divider, message } from 'antd'
+import { FileTextOutlined, FolderOutlined, ImportOutlined, CopyOutlined } from '@ant-design/icons'
 
 const { Search } = Input
 
@@ -23,6 +23,7 @@ const ProjectsView: React.FC = () => {
   const [currentProjectId, setCurrentProjectId] = useState<string | null>(null)
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [searchValue, setSearchValue] = useState('')
+  const [selectedPrompt, setSelectedPrompt] = useState<string | null>(null)
   const [loadState, setLoadState] = useState({
     status: 'loading',
     message: ''
@@ -136,20 +137,24 @@ const ProjectsView: React.FC = () => {
 
   const handlePromptSelect = async (prompt: string) => {
     try {
-      await window.electronAPI.injectPrompt(prompt)
+      const result = await window.electronAPI.injectPrompt(prompt)
+      if (result?.success) {
+        message.success('提示词已注入')
+      } else {
+        message.error(result?.error || '未找到输入框，提示词注入失败')
+      }
     } catch (error) {
       console.error('Error injecting prompt:', error)
+      message.error('提示词注入失败，无法与主进程通信')
     }
   }
 
   const handleSelect = (_: React.Key[], info: any) => {
     if (info.node.isLeaf && info.node.prompt) {
-      handlePromptSelect(info.node.prompt)
+      setSelectedPrompt(info.node.prompt)
+    } else {
+      setSelectedPrompt(null)
     }
-  }
-
-  const handleCopyPrompt = (prompt: string) => {
-    navigator.clipboard.writeText(prompt)
   }
 
   const renderTitle = (node: any) => (
@@ -159,10 +164,10 @@ const ProjectsView: React.FC = () => {
         <Button
           type="text"
           size="small"
-          icon={<CopyOutlined />}
+          icon={<ImportOutlined />}
           onClick={(e) => {
             e.stopPropagation()
-            handleCopyPrompt(node.prompt)
+            handlePromptSelect(node.prompt)
           }}
           style={{ opacity: 0.7 }}
         />
@@ -232,13 +237,36 @@ const ProjectsView: React.FC = () => {
 
       <div className="sidebar-content">
         {filteredTreeData.length > 0 ? (
-          <Tree
-            treeData={filteredTreeData}
-            onSelect={handleSelect}
-            showIcon
-            defaultExpandAll
-            titleRender={renderTitle}
-          />
+          <>
+            <Tree
+              treeData={filteredTreeData}
+              onSelect={handleSelect}
+              showIcon
+              defaultExpandAll
+              titleRender={renderTitle}
+            />
+            {selectedPrompt && (
+              <div className="prompt-detail-card">
+                <div className="prompt-detail-header">
+                  <span>提示词内容</span>
+                  <div className="prompt-detail-actions">
+                    <Button
+                      size="small"
+                      icon={<ImportOutlined />}
+                      onClick={() => handlePromptSelect(selectedPrompt)}
+                    />
+                    <Button
+                      size="small"
+                      icon={<CopyOutlined />}
+                      onClick={() => navigator.clipboard.writeText(selectedPrompt)}
+                    />
+                  </div>
+                </div>
+                <Divider style={{ margin: '6px 0' }} />
+                <div className="prompt-detail-body">{selectedPrompt}</div>
+              </div>
+            )}
+          </>
         ) : (
           <div className="empty-state">
             <Empty

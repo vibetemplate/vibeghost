@@ -11,6 +11,7 @@ import {
   Space
 } from 'antd'
 import { AppSettings } from '../../../shared/types'
+import LogPanel from '../components/LogPanel'
 
 const ConfigView: React.FC = () => {
   const [form] = Form.useForm()
@@ -24,6 +25,8 @@ const ConfigView: React.FC = () => {
     showLogPanel: false,
     defaultCategory: 'domestic'
   })
+
+  const [logPanelVisible, setLogPanelVisible] = useState(true)
 
   useEffect(() => {
     loadSettings()
@@ -60,6 +63,8 @@ const ConfigView: React.FC = () => {
     form.resetFields()
     message.info('配置已重置为默认值')
   }
+
+  const showLogPanelValue = Form.useWatch('showLogPanel', form) ?? false
 
   return (
     <div style={{ padding: '16px' }}>
@@ -152,6 +157,14 @@ const ConfigView: React.FC = () => {
             保存配置
           </Button>
         </Space>
+
+        {/* 日志面板显示 */}
+        {showLogPanelValue && (
+          <>
+            <Divider />
+            <LogPanel isVisible={logPanelVisible} onToggle={() => setLogPanelVisible(!logPanelVisible)} />
+          </>
+        )}
       </Form>
     </div>
   )

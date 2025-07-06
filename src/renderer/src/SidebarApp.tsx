@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import { Modal } from 'antd'
 import Header from './components/Header'
 import FooterToolbar from './components/FooterToolbar'
-import LogPanel from './components/LogPanel'
 import WebsiteView from './views/WebsiteView'
 import ProjectsView from './views/ProjectsView'
 import PromptsView from './views/PromptsView'
@@ -12,13 +11,12 @@ import './SidebarApp.css'
 
 const SidebarApp: React.FC = () => {
   const [activeView, setActiveView] = useState('websites')
-  const [showLogPanel, setShowLogPanel] = useState(false)
 
   const handleRefresh = () => {
     window.location.reload()
   }
 
-  const handleAction = async (action: 'navigate' | 'clearCache' | 'proxy') => {
+  const handleAction = async (action: 'clearCache' | 'proxy') => {
     switch (action) {
       case 'clearCache':
         try {
@@ -31,9 +29,6 @@ const SidebarApp: React.FC = () => {
         } catch (error) {
           Modal.error({ title: '清除缓存失败', content: '无法连接到主进程' });
         }
-        break;
-      case 'navigate':
-        window.electronAPI.showModal('navigate')
         break;
       case 'proxy':
         window.electronAPI.showModal('proxy')
@@ -56,35 +51,17 @@ const SidebarApp: React.FC = () => {
     }
   }
 
-  const handleToggleLogPanel = () => {
-    setShowLogPanel(!showLogPanel)
-  }
-
   return (
     <div className="sidebar-app-container">
       <Header onRefresh={handleRefresh} />
-      <main className={`main-content ${showLogPanel ? 'with-log-panel' : ''}`}>
+      <main className="main-content">
         {renderActiveView()}
-        {showLogPanel && (
-          <LogPanel 
-            isVisible={showLogPanel} 
-            onToggle={handleToggleLogPanel}
-          />
-        )}
       </main>
       <FooterToolbar
         activeView={activeView}
         onViewChange={setActiveView}
         onAction={handleAction}
       />
-      {!showLogPanel && (
-        <div className="log-panel-toggle">
-          <LogPanel 
-            isVisible={false} 
-            onToggle={handleToggleLogPanel}
-          />
-        </div>
-      )}
     </div>
   )
 }

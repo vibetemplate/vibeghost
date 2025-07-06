@@ -2,32 +2,26 @@ import React from 'react'
 import { Button, Tooltip } from 'antd'
 import {
   AppstoreOutlined,
-  ProfileOutlined,
   SettingOutlined,
   CloudServerOutlined,
-  RocketOutlined,
-  ClearOutlined,
-  GlobalOutlined
+  ClearOutlined
 } from '@ant-design/icons'
 import './FooterToolbar.css'
 
 interface FooterToolbarProps {
   activeView: string
   onViewChange: (view: string) => void
-  onAction: (action: 'navigate' | 'clearCache' | 'proxy') => void
+  onAction: (action: 'clearCache' | 'proxy') => void
 }
 
 const FooterToolbar: React.FC<FooterToolbarProps> = ({ activeView, onViewChange, onAction }) => {
   const topActions = [
-    { key: 'navigate', title: '导航', icon: <RocketOutlined /> },
     { key: 'clearCache', title: '缓存', icon: <ClearOutlined /> },
     { key: 'proxy', title: '代理', icon: <CloudServerOutlined /> }
   ]
 
   const bottomViews = [
-    { key: 'websites', title: '网站', icon: <GlobalOutlined /> },
     { key: 'projects', title: '项目', icon: <AppstoreOutlined /> },
-    { key: 'prompts', title: '提示词', icon: <ProfileOutlined /> },
     { key: 'config', title: '配置', icon: <SettingOutlined /> }
   ]
 

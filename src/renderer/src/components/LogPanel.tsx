@@ -14,7 +14,6 @@ import {
   DownOutlined, 
   ClearOutlined, 
   ExportOutlined,
-  FilterOutlined
 } from '@ant-design/icons'
 import { LogEntry } from '../../../shared/types'
 import './LogPanel.css'
